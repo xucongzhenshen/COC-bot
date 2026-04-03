@@ -12,3 +12,6 @@ __pycache__/
 
 # 临时文件夹
 untitled*/
+
+# 其他
+run*

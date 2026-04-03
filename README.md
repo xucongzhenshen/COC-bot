@@ -1,6 +1,6 @@
 # COC-bot
 
-## English
+## English  |   [Chinese](./README-chi.md)
 
 ### 1. Overview
 

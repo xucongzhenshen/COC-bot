@@ -1,2 +1,0 @@
-& D:\software\miniforge3\envs\COC-bot\python.exe d:/Programming/COC-bot/main.py --log_path="log_tencent"
-& D:\software\miniforge3\envs\COC-bot\python.exe d:/Programming/COC-bot/main.py --log_path="log_global" --device="emulator-5556" --night_faction="archer" --version="global"

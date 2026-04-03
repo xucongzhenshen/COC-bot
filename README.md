@@ -1,6 +1,6 @@
 # COC-bot: Clash of Clans Automation Research Project
 
-## [English] |  [中文](./README-chi.md)
+## English |  [中文](./README-chi.md)
 
 ### 1. Overview
 **COC-bot** is an advanced automation framework for *Clash of Clans*, built on **Airtest** and **OpenCV**. This project is designed as a deep-learning case study for game automation, focusing on:

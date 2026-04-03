@@ -137,6 +137,6 @@ python main.py --log_path="log_global" --device="emulator-5556" --night_faction=
 
 ### 8. Prerequisites and Notes
 
-- ADB connection must be available.
-- Template matching depends on resolution and UI consistency.
+- ADB connection must be available. (This project uses LDPlayer as the default emulator. If you need to change it, please modify the startup and shutdown logic accordingly.)
+- Template matching depends on resolution and UI consistency. Currently, only [2560, 1440] resolution is supported.
 - OCR/image recognition can be unstable in low-quality or occluded scenes.

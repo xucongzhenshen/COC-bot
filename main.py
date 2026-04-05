@@ -85,6 +85,11 @@ def parse_args():
         default="tencent",
         help="游戏版本，可选值：tencent（腾讯版）或 global（国际服），默认 tencent",
     )
+    parser.add_argument(
+        "--retrain",
+        default=False,
+        help="是否重新训练模型，默认为 False，设置为 True 将删除现有配兵并重新训练",
+    )
     return parser.parse_args()
 
 
@@ -95,7 +100,7 @@ def main_loop():
     if current_loc == "HOME":
         run_home_world()
     elif current_loc == "NIGHT":
-        run_night_world(faction=args.night_faction)
+        run_night_world(faction=args.night_faction, retrain=args.retrain)
     else:
         log_msg("无法识别当前世界...", level=0)
         raise Exception("未知世界")

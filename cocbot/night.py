@@ -74,7 +74,7 @@ def night_train_logic(faction="witch"):
                 raise Exception(f"女巫训练流程失败: {str(e)}")
         elif troop_name == "archer":
             try:
-                random_touch(exists(Assets.ARCHER_TRAIN))
+                random_touch(exists(Assets.ARCHER_TRAIN), offset=1)
                 sleep(0.5)
             except Exception as e:
                 log_msg("未找到弓箭手训练按钮，跳过弓箭手训练", level=0, log_path=get_log_path())
@@ -250,11 +250,11 @@ def night_righting_pos():
     for _ in range(3):
         swipe((600, 600), (200, 200), duration=0.8)
     sleep(0.5)
-    swipe((1280, 300), (1280, 730), duration=0.8)
+    swipe((1280, 300), (1280, 780), duration=0.8)
     sleep(0.5)
 
 
-def run_night_world(faction="witch"):
+def run_night_world(faction="witch", retrain=False):
     log_msg("--- 正在处理夜世界任务 ---", level=0, log_path=get_log_path())
     
     night_righting_pos()
@@ -262,7 +262,8 @@ def run_night_world(faction="witch"):
     swipe((1280, 300), (1280, 650), duration=0.5)
     collect_night_resources()
 
-    night_train_logic(faction=faction)
+    if retrain:
+        night_train_logic(faction=faction)
 
     for index in range(5):
         log_msg(f"夜战尝试 {index + 1}/5", level=0, log_path=get_log_path())

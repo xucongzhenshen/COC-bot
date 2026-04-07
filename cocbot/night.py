@@ -1,10 +1,46 @@
 from ._assets import Assets
-from .advanced import find_boat_and_switch, set_max_zoom_out
+from .advanced import center_night_meadow_to_screen, find_boat_and_switch, set_max_zoom_out, tracked_segmented_swipe
 from .common import capture_debug_snapshot, exists, get_log_path, log_msg, random_touch, sleep, touch, wait, swipe, get_text_from_roi
 import random
 
 WITCH_TRAIN_LIST = ["giant", "witch", "witch", "witch", "witch", "witch", "giant", "witch"]
 ARCHER_TRAIN_LIST_1 = ["giant", "giant", "giant", "archer"]
+
+# 夜世界原点相对于屏幕中心的位置向量 [dx, dy]
+NIGHT_ORIGIN = [0.0, 0.0]
+
+
+def _night_tracked_move(target_shift, max_step_px=260, duration_ratio=0.35, min_duration=0.2, settle_time=0.8):
+    """夜世界位移封装：自动分段滑动并按真实位移更新 NIGHT_ORIGIN。"""
+    global NIGHT_ORIGIN
+    total_actual, history = tracked_segmented_swipe(
+        target_shift=target_shift,
+        max_step_px=max_step_px,
+        duration_ratio=duration_ratio,
+        min_duration=min_duration,
+        settle_time=settle_time,
+        tolerance_px=12,
+        max_segments=10,
+    )
+    if history:
+        for idx, step in enumerate(history, start=1):
+            NIGHT_ORIGIN[0] += float(step["actual"][0])
+            NIGHT_ORIGIN[1] += float(step["actual"][1])
+            log_msg(
+                f"[NightMove] step {idx}/{len(history)} actual={list(map(int, step['actual']))}, NIGHT_ORIGIN={list(map(int, NIGHT_ORIGIN))}",
+                level=2,
+                log_path=get_log_path(),
+            )
+    else:
+        NIGHT_ORIGIN[0] += float(total_actual[0])
+        NIGHT_ORIGIN[1] += float(total_actual[1])
+
+    log_msg(
+        f"[NightMove] 目标位移={list(map(int, target_shift))}, 实际位移={total_actual.astype(int).tolist()}, NIGHT_ORIGIN={list(map(int, NIGHT_ORIGIN))}",
+        level=1,
+        log_path=get_log_path(),
+    )
+    return total_actual, history
 
 def collect_night_resources():
     """夜世界资源收集：水、金、绿宝石"""
@@ -183,6 +219,15 @@ def _night_battle_archer_once():
     for _ in range(3):
         random_touch(valid_deploy_point)
     
+    if exists(Assets.MECHA_DEPLOY):
+        random_touch(exists(Assets.MECHA_DEPLOY))
+        for _ in range(2):
+            random_touch(valid_deploy_point)
+    if exists(Assets.FIGHTER_JET_DEPLOY):
+        random_touch(exists(Assets.FIGHTER_JET_DEPLOY))
+        for _ in range(2):
+            random_touch(valid_deploy_point)
+            
     try:
         random_touch(exists(Assets.ARCHER_DEPLOY))
         for _ in range(5):
@@ -245,13 +290,22 @@ def night_battle_logic(faction="witch"):
 
 
 def night_righting_pos():
-    """回正视角，先向右下角移动到最大，再向上回正"""
+    """基于草地平行四边形中心回正视角，并在成功后将 NIGHT_ORIGIN 置零。"""
+    global NIGHT_ORIGIN
     log_msg("正在调整夜世界视角...", log_path=get_log_path())
-    for _ in range(3):
-        swipe((600, 600), (200, 200), duration=0.8)
-    sleep(0.5)
-    swipe((1280, 300), (1280, 780), duration=0.8)
-    sleep(0.5)
+
+    ok, detected_center, total_actual, history = center_night_meadow_to_screen(
+        tolerance_px=45,
+        max_step_px=260,
+        max_segments=10,
+        debug_detect=True,
+    )
+    NIGHT_ORIGIN[0] = detected_center[0]
+    NIGHT_ORIGIN[1] = detected_center[1]
+    if ok:
+        log_msg(f"视角调整完成，检测到的草地中心={detected_center}, 实际位移={total_actual.astype(int).tolist()}", level=1, log_path=get_log_path())
+    else:
+        log_msg("视角调整失败", level=0, log_path=get_log_path())
 
 
 def run_night_world(faction="witch", retrain=False):
@@ -259,7 +313,7 @@ def run_night_world(faction="witch", retrain=False):
     
     night_righting_pos()
     log_msg("稍微上移动视野，确保所有资源在屏幕内...", log_path=get_log_path())
-    swipe((1280, 300), (1280, 650), duration=0.5)
+    _night_tracked_move(target_shift=(0, 260), max_step_px=220)
     collect_night_resources()
 
     if retrain:
@@ -274,9 +328,9 @@ def run_night_world(faction="witch", retrain=False):
     night_righting_pos()
 
     log_msg("再次收集资源", level=0, log_path=get_log_path())
-    swipe((1280, 300), (1280, 650), duration=0.5)
+    _night_tracked_move(target_shift=(0, 260), max_step_px=220)
     collect_night_resources()
-    swipe((1280, 650), (1280, 300), duration=0.5)
+    _night_tracked_move(target_shift=(0, -260), max_step_px=220)
 
     if find_boat_and_switch("HOME"):
         pass

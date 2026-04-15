@@ -1,39 +1,16 @@
 from ._assets import Assets
 from .advanced import find_boat_and_switch, set_max_zoom_out, tracked_segmented_swipe, _get_deploy_point_list
 from .common import get_log_path, log_msg, random_touch, sleep, find_all, swipe, exists, capture_debug_snapshot, get_text_from_roi
+from .config_manager import get_config_manager
 import csv
-import json
 import math
-import os
 
 
-HOME_FIGHT_CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config", "home_fight.json")
-LIGHTNING_DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "GameData", "home", "lightning_spell.csv")
-ANTI_AIRCRAFT_DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "GameData", "home", "anti_aircraft_rocket.csv")
-
-
-def _load_home_fight_config(config_path=HOME_FIGHT_CONFIG_PATH):
-    """读取主世界战斗参数配置。"""
-    default_config = {
-        "dragon_number": 10,
-        "lightning_number": 9,
-        "lightning_level": 10,
-    }
-    try:
-        with open(config_path, "r", encoding="utf-8") as f:
-            loaded = json.load(f)
-        merged = {**default_config, **loaded}
-        merged["dragon_number"] = int(merged["dragon_number"])
-        merged["lightning_number"] = int(merged["lightning_number"])
-        merged["lightning_level"] = int(merged["lightning_level"])
-        return merged
-    except Exception as e:
-        log_msg(f"读取主世界战斗配置失败，使用默认值: {e} | path={config_path}", level=1, log_path=get_log_path())
-        return default_config
-
-
-def _load_lightning_damage(lightning_level, csv_path=LIGHTNING_DATA_PATH):
+def _load_lightning_damage(lightning_level, csv_path=None):
     """读取指定等级闪电法术单次伤害。"""
+    cfg = get_config_manager()
+    if csv_path is None:
+        csv_path = cfg.lightning_data_path
     with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -42,8 +19,11 @@ def _load_lightning_damage(lightning_level, csv_path=LIGHTNING_DATA_PATH):
     raise ValueError(f"未找到闪电法术等级数据: level={lightning_level}, path={csv_path}")
 
 
-def _load_anti_aircraft_stats(csv_path=ANTI_AIRCRAFT_DATA_PATH):
+def _load_anti_aircraft_stats(csv_path=None):
     """读取防空火箭等级属性（DPSecond、Hitpoints）。"""
+    cfg = get_config_manager()
+    if csv_path is None:
+        csv_path = cfg.anti_aircraft_data_path
     stats = {}
     with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -162,12 +142,17 @@ def _pick_lightning_targets(anti_aircraft_list, lightning_number, lightning_dama
     }
 
 
-def run_home_world(
-        faction = "dragon", 
-        filter_config = {"gold": 500000, "water": 500000, "oil": 1500}, 
-        retrain = False,
-        battle = True
-    ):
+def run_home_world(faction=None, filter_config=None, retrain=None, battle=None):
+    cfg = get_config_manager()
+    if faction is None:
+        faction = cfg.home_faction
+    if filter_config is None:
+        filter_config = cfg.home_filter
+    if retrain is None:
+        retrain = cfg.home_retrain
+    if battle is None:
+        battle = cfg.home_battle
+
     log_msg("--- 正在处理主世界任务 ---", level=0, log_path=get_log_path())
 
     home_righting_pos()
@@ -177,8 +162,8 @@ def run_home_world(
         log_msg("重新训练主世界模型，删除现有配兵", level=0, log_path=get_log_path())
         home_train_logic(faction=faction)
     if battle:
-        for index in range(5):
-            log_msg(f"主战尝试 {index + 1}/5", level=0, log_path=get_log_path())
+        for index in range(cfg.home_attempts):
+            log_msg(f"主战尝试 {index + 1}/{cfg.home_attempts}", level=0, log_path=get_log_path())
             home_battle_logic(faction=faction, filter_config=filter_config)
 
     if find_boat_and_switch("NIGHT"):
@@ -205,8 +190,12 @@ def home_righting_pos():
     sleep(0.5)
 
 
-def home_train_logic(faction = "dragon"):
+def home_train_logic(faction=None):
     """主世界训练逻辑"""
+    cfg = get_config_manager()
+    if faction is None:
+        faction = cfg.home_faction
+
     log_msg("正在执行主世界训练...", log_path=get_log_path())
 
     if faction == "dragon":
@@ -223,8 +212,16 @@ def home_train_logic(faction = "dragon"):
         log_msg(f"未找到关闭按钮: {e}", level=1, log_path=get_log_path())
 
 
-def _home_dragon_fight_logic(dragon_number=10, lightning_number=9, lightning_level=10):
+def _home_dragon_fight_logic(dragon_number=None, lightning_number=None, lightning_level=None):
     """主世界龙战斗逻辑"""
+    cfg = get_config_manager()
+    if dragon_number is None:
+        dragon_number = cfg.home_fight["dragon_number"]
+    if lightning_number is None:
+        lightning_number = cfg.home_fight["lightning_number"]
+    if lightning_level is None:
+        lightning_level = cfg.home_fight["lightning_level"]
+
     valid_deploy_point = [2396, 800]
     try:
         random_touch(exists(Assets.DRAGON_DEPLOY), min_sleep_time=0, max_sleep_time=0.02)
@@ -317,8 +314,14 @@ def _wait_the_battle_finish():
             raise Exception("战斗超时")
 
 
-def home_battle_logic(faction = "dragon", filter_config = {"gold": 500000, "water": 500000, "oil": 1500}):
+def home_battle_logic(faction=None, filter_config=None):
     """主世界战斗逻辑"""
+    cfg = get_config_manager()
+    if faction is None:
+        faction = cfg.home_faction
+    if filter_config is None:
+        filter_config = cfg.home_filter
+
     log_msg("正在执行主世界战斗...", log_path=get_log_path())
     try:
         if exists(Assets.FIGHT_HOME_WITH_3_STAR):
@@ -349,11 +352,10 @@ def home_battle_logic(faction = "dragon", filter_config = {"gold": 500000, "wate
         break
             
     if faction == "dragon":
-        fight_config = _load_home_fight_config()
         _home_dragon_fight_logic(
-            dragon_number=fight_config["dragon_number"],
-            lightning_number=fight_config["lightning_number"],
-            lightning_level=fight_config["lightning_level"],
+            dragon_number=cfg.home_fight["dragon_number"],
+            lightning_number=cfg.home_fight["lightning_number"],
+            lightning_level=cfg.home_fight["lightning_level"],
         )
     
     _wait_the_battle_finish()
@@ -364,8 +366,12 @@ def home_battle_logic(faction = "dragon", filter_config = {"gold": 500000, "wate
         log_msg(f"未找到返回按钮: {e}", level=1, log_path=get_log_path())
 
 
-def _filter_with_resource(filter_config = {"gold": 500000, "water": 500000, "oil": 1500}):
+def _filter_with_resource(filter_config=None):
     """根据资源多少过滤出高价值进攻目标"""
+    cfg = get_config_manager()
+    if filter_config is None:
+        filter_config = cfg.home_filter
+
     ROI_GOLD = [200, 120, 250, 350]
     ROI_WATER = [275, 120, 325, 350]
     ROI_OIL = [350, 120, 400, 350]

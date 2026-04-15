@@ -1,4 +1,5 @@
 from .advanced import detect_world, find_boat_and_switch, set_max_zoom_out
+from .config_manager import get_config_manager
 from .common import (
     build_airtest_uri,
     close_popups,

@@ -1,6 +1,7 @@
 from ._assets import Assets
 from .advanced import center_night_meadow_to_screen, find_boat_and_switch, set_max_zoom_out, tracked_segmented_swipe, _get_deploy_point_list
 from .common import capture_debug_snapshot, exists, get_log_path, log_msg, random_touch, sleep, touch, wait, swipe, get_text_from_roi
+from .config_manager import get_config_manager
 import random
 
 WITCH_TRAIN_LIST = ["giant", "witch", "witch", "witch", "witch", "witch", "giant", "witch"]
@@ -62,7 +63,11 @@ def collect_night_resources():
         cnt += 1
 
 
-def night_train_logic(faction="witch"):
+def night_train_logic(faction=None):
+    cfg = get_config_manager()
+    if faction is None:
+        faction = cfg.night_faction
+
     if faction == "witch":
         log_msg("夜世界练兵流派: 女巫", level=1, log_path=get_log_path())
         train_list = WITCH_TRAIN_LIST
@@ -235,8 +240,12 @@ def _night_battle_archer_once():
 
 
 ROI_START = [30, 1170, 80, 1360] # 搜索对手界面倒计时文本的 ROI，根据你的设备分辨率调整
-def night_battle_logic(faction="witch"):
+def night_battle_logic(faction=None):
     """夜世界搜索并自动下兵"""
+    cfg = get_config_manager()
+    if faction is None:
+        faction = cfg.night_faction
+
     if not exists(Assets.NIGHT_FIGHT_WITH_STAR) and not exists(Assets.NIGHT_FIGHT):
         return
 
@@ -302,7 +311,15 @@ def night_righting_pos():
         log_msg("视角调整失败", level=0, log_path=get_log_path())
 
 
-def run_night_world(faction="witch", retrain=False, battle=True):
+def run_night_world(faction=None, retrain=None, battle=None):
+    cfg = get_config_manager()
+    if faction is None:
+        faction = cfg.night_faction
+    if retrain is None:
+        retrain = cfg.night_retrain
+    if battle is None:
+        battle = cfg.night_battle
+
     log_msg("--- 正在处理夜世界任务 ---", level=0, log_path=get_log_path())
     
     night_righting_pos()
@@ -314,8 +331,8 @@ def run_night_world(faction="witch", retrain=False, battle=True):
         night_train_logic(faction=faction)
 
     if battle: 
-        for index in range(10):
-            log_msg(f"夜战尝试 {index + 1}/10", level=0, log_path=get_log_path())
+        for index in range(cfg.night_attempts):
+            log_msg(f"夜战尝试 {index + 1}/{cfg.night_attempts}", level=0, log_path=get_log_path())
             night_battle_logic(faction=faction)
 
     # 最后再调整一下视角，准备切回主世界

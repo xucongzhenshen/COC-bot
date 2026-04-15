@@ -4,6 +4,7 @@ from .meadow_detector import MeadowParallelogramDetector
 import os
 import cv2
 import numpy as np
+import random
 
 
 _MEADOW_DETECTOR = MeadowParallelogramDetector(sample_path=os.path.join("cocbot", "sample_imgs", "night"))
@@ -89,15 +90,15 @@ def tracked_swipe_once(p1, p2, duration=0.5, settle_time=0.8):
 def tracked_segmented_swipe(
     target_shift,
     max_step_px=260,
-    duration_ratio=0.45,
-    min_duration=0.2,
     settle_time=0.8,
     tolerance_px=15,
     max_segments=8,
-    feedback_stop_threshold=18,
+    feedback_stop_threshold=30,
     adaptive_duration_ratio=True,
     duration_ratio_growth=0.08,
-    max_duration=4,
+    max_duration_ratio=0.8,
+    min_duration=0.05,
+    duration_ratio=0.4,
 ):
     """按小步分段滑动，追踪每段真实位移，返回总位移。"""
     target = np.array(target_shift, dtype=float)
@@ -123,8 +124,8 @@ def tracked_segmented_swipe(
             step_vec = remaining * (max_step_px / rem_norm)
 
         finger_vec = step_vec * finger_sign
-        p1 = center.copy()
-        p2 = center + finger_vec
+        p1 = [2560*0.8, 1440*0.8]  # 固定起点
+        p2 = p1 + finger_vec
         p2[0] = min(max(p2[0], margin), w - margin)
         p2[1] = min(max(p2[1], margin), h - margin)
 
@@ -132,8 +133,9 @@ def tracked_segmented_swipe(
         current_duration_ratio = duration_ratio
         if adaptive_duration_ratio:
             current_duration_ratio = duration_ratio + idx * duration_ratio_growth
+        # 限制duration_ratio最大值
+        current_duration_ratio = min(current_duration_ratio, max_duration_ratio)
         seg_duration = current_duration_ratio * (step_distance / 200.0) + min_duration
-        seg_duration = min(max_duration, seg_duration)
 
         actual_vec, match_count = tracked_swipe_once(p1, p2, duration=seg_duration, settle_time=settle_time)
         total_actual += actual_vec
@@ -200,15 +202,10 @@ def center_night_meadow_to_screen(tolerance_px=45, max_step_px=260, max_segments
     total_actual, history = tracked_segmented_swipe(
         target_shift=delta,
         max_step_px=max_step_px,
-        duration_ratio=0.38,
-        min_duration=0.22,
         settle_time=0.8,
         tolerance_px=int(max(8, tolerance_px * 0.35)),
         max_segments=max_segments,
-        feedback_stop_threshold=18,
         adaptive_duration_ratio=True,
-        duration_ratio_growth=0.08,
-        max_duration=4,
     )
 
     # 末次复核是否已基本居中
@@ -301,34 +298,24 @@ def find_boat_and_switch(target_world="NIGHT"):
     if target_world == "NIGHT":
         log_msg("寻找去夜世界的小船...", log_path=get_log_path())
         tracked_segmented_swipe(
-            target_shift=(-50, -350),  # 这个值可能需要根据实际情况调整
+            target_shift=(150, -350),  # 这个值可能需要根据实际情况调整
             max_step_px=260,
-            duration_ratio=0.38,
-            min_duration=0.22,
             settle_time=0.8,
             tolerance_px=15,
             max_segments=6,
-            feedback_stop_threshold=18,
             adaptive_duration_ratio=True,
-            duration_ratio_growth=0.08,
-            max_duration=4,
         )
         sleep(0.5)
         boat = Assets.SHIP_TO_NIGHT
     else:
         log_msg("寻找回主世界的小船...", log_path=get_log_path())
         tracked_segmented_swipe(
-            target_shift=(50, 350),  # 这个值可能需要根据实际情况调整
+            target_shift=(-150, 350),  # 这个值可能需要根据实际情况调整
             max_step_px=260,
-            duration_ratio=0.38,
-            min_duration=0.22,
             settle_time=0.8,
             tolerance_px=15,
             max_segments=6,
-            feedback_stop_threshold=18,
             adaptive_duration_ratio=True,
-            duration_ratio_growth=0.08,
-            max_duration=4,
         )
         sleep(0.5)
         boat = Assets.SHIP_BACK_HOME
@@ -343,3 +330,10 @@ def find_boat_and_switch(target_world="NIGHT"):
     log_msg("未找到小船，截图以供分析", level=0, log_path=get_log_path())
     capture_debug_snapshot("boat_not_found", log_path=get_log_path())
     return False
+
+SPAWN_POINTS = [[169, 660], [2396, 800], [2066, 456], [2258, 577], [2281, 759]]
+def _get_deploy_point_list():
+    """随机shuffle一下部署点，增加多样性"""
+    points = SPAWN_POINTS.copy()
+    random.shuffle(points)
+    return points

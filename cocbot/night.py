@@ -1,5 +1,5 @@
 from ._assets import Assets
-from .advanced import center_night_meadow_to_screen, find_boat_and_switch, set_max_zoom_out, tracked_segmented_swipe
+from .advanced import center_night_meadow_to_screen, find_boat_and_switch, set_max_zoom_out, tracked_segmented_swipe, _get_deploy_point_list
 from .common import capture_debug_snapshot, exists, get_log_path, log_msg, random_touch, sleep, touch, wait, swipe, get_text_from_roi
 import random
 
@@ -41,6 +41,7 @@ def _night_tracked_move(target_shift, max_step_px=260, duration_ratio=0.35, min_
         log_path=get_log_path(),
     )
     return total_actual, history
+
 
 def collect_night_resources():
     """夜世界资源收集：水、金、绿宝石"""
@@ -129,14 +130,6 @@ def night_train_logic(faction="witch"):
     log_msg("练兵流程完成", level=0, log_path=get_log_path())
 
 
-SPAWN_POINTS = [[169, 660], [2396, 800], [2066, 456], [2258, 577], [2281, 759]]
-def _get_deploy_point_list():
-    """随机shuffle一下部署点，增加多样性"""
-    points = SPAWN_POINTS.copy()
-    random.shuffle(points)
-    return points
-
-
 def _wait_and_finish_battle_once():
     countdown_prompt = get_text_from_roi()
     timeout = 150
@@ -165,31 +158,31 @@ def _night_battle_witch_once():
     """夜世界战斗中女巫流派的部署逻辑, 仅打一阶段"""
     valid_deploy_point = [2396, 800]
     try:
-        random_touch(exists(Assets.GIANT_DEPLOY))
+        random_touch(exists(Assets.GIANT_DEPLOY), min_sleep_time=0, max_sleep_time=0.02)
     except Exception as e:
         log_msg("未找到巨人部署按钮，进攻失败", level=0, log_path=get_log_path())
         capture_debug_snapshot("witch_giant_deploy_not_found", log_path=get_log_path())
         raise Exception(f"巨人部署流程失败: {str(e)}")
     
     for point in _get_deploy_point_list():
-        random_touch(point)
+        random_touch(point, min_sleep_time=0, max_sleep_time=0.02)
         if exists(Assets.BTN_GIVE_UP):
             valid_deploy_point = point
             break
 
     if exists(Assets.MECHA_DEPLOY):
-        random_touch(exists(Assets.MECHA_DEPLOY))
+        random_touch(exists(Assets.MECHA_DEPLOY), min_sleep_time=0, max_sleep_time=0.02)
         for _ in range(2):
-            random_touch(valid_deploy_point)
+            random_touch(valid_deploy_point, min_sleep_time=0, max_sleep_time=0.02)
     if exists(Assets.FIGHTER_JET_DEPLOY):
-        random_touch(exists(Assets.FIGHTER_JET_DEPLOY))
+        random_touch(exists(Assets.FIGHTER_JET_DEPLOY), min_sleep_time=0, max_sleep_time=0.02)
         for _ in range(2):
-            random_touch(valid_deploy_point)
+            random_touch(valid_deploy_point, min_sleep_time=0, max_sleep_time=0.02)
 
     try:
-        random_touch(exists(Assets.WITCH_DEPLOY))
+        random_touch(exists(Assets.WITCH_DEPLOY), min_sleep_time=0, max_sleep_time=0.02)
         for _ in range(7):
-            random_touch(valid_deploy_point)
+            random_touch(valid_deploy_point, min_sleep_time=0, max_sleep_time=0.02)
     except Exception as e:
         log_msg("未找到女巫部署按钮，跳过女巫部署", level=0, log_path=get_log_path())
         capture_debug_snapshot("witch_deploy_not_found", log_path=get_log_path())
@@ -204,34 +197,34 @@ def _night_battle_archer_once():
     f"""夜世界战斗中女巫流派的部署逻辑, 仅打一阶段"""
     valid_deploy_point = [2396, 800]
     try:
-        random_touch(exists(Assets.GIANT_DEPLOY))
+        random_touch(exists(Assets.GIANT_DEPLOY), min_sleep_time=0, max_sleep_time=0.02)
     except Exception as e:
         log_msg("未找到巨人部署按钮，进攻失败", level=0, log_path=get_log_path())
         capture_debug_snapshot("archer_giant_deploy_not_found", log_path=get_log_path())
         raise Exception(f"巨人部署流程失败: {str(e)}")
 
     for point in _get_deploy_point_list():
-        random_touch(point)
+        random_touch(point, min_sleep_time=0, max_sleep_time=0.02)
         if exists(Assets.BTN_GIVE_UP):
             valid_deploy_point = point
             break
     # 继续部署剩余的巨人
     for _ in range(3):
-        random_touch(valid_deploy_point)
+        random_touch(valid_deploy_point, min_sleep_time=0, max_sleep_time=0.02)
     
     if exists(Assets.MECHA_DEPLOY):
-        random_touch(exists(Assets.MECHA_DEPLOY))
+        random_touch(exists(Assets.MECHA_DEPLOY), min_sleep_time=0, max_sleep_time=0.02)
         for _ in range(2):
-            random_touch(valid_deploy_point)
+            random_touch(valid_deploy_point, min_sleep_time=0, max_sleep_time=0.02)
     if exists(Assets.FIGHTER_JET_DEPLOY):
-        random_touch(exists(Assets.FIGHTER_JET_DEPLOY))
+        random_touch(exists(Assets.FIGHTER_JET_DEPLOY), min_sleep_time=0, max_sleep_time=0.02)
         for _ in range(2):
-            random_touch(valid_deploy_point)
+            random_touch(valid_deploy_point, min_sleep_time=0, max_sleep_time=0.02)
             
     try:
-        random_touch(exists(Assets.ARCHER_DEPLOY))
+        random_touch(exists(Assets.ARCHER_DEPLOY), min_sleep_time=0, max_sleep_time=0.02)
         for _ in range(5):
-            random_touch(valid_deploy_point)
+            random_touch(valid_deploy_point, min_sleep_time=0, max_sleep_time=0.02)
     except Exception as e:
         log_msg("未找到弓箭手部署按钮，弓箭手部署失败", level=0, log_path=get_log_path())
         capture_debug_snapshot("archer_deploy_not_found", log_path=get_log_path())
@@ -240,7 +233,7 @@ def _night_battle_archer_once():
     log_msg("部署完成，等待战斗结束...", log_path=get_log_path())
     _wait_and_finish_battle_once()
 
-MAX_SEARCH_TIME = 50
+
 ROI_START = [30, 1170, 80, 1360] # 搜索对手界面倒计时文本的 ROI，根据你的设备分辨率调整
 def night_battle_logic(faction="witch"):
     """夜世界搜索并自动下兵"""
@@ -260,6 +253,7 @@ def night_battle_logic(faction="witch"):
         raise Exception(f"战斗流程失败: {str(e)}")
 
     log_msg("正在搜寻对手...", log_path=get_log_path())
+    MAX_SEARCH_TIME = 50
     search_time = 0
     countdown_prompt = get_text_from_roi()
     while "开战倒计时" not in countdown_prompt and search_time < MAX_SEARCH_TIME:
@@ -308,7 +302,7 @@ def night_righting_pos():
         log_msg("视角调整失败", level=0, log_path=get_log_path())
 
 
-def run_night_world(faction="witch", retrain=False):
+def run_night_world(faction="witch", retrain=False, battle=True):
     log_msg("--- 正在处理夜世界任务 ---", level=0, log_path=get_log_path())
     
     night_righting_pos()
@@ -319,9 +313,10 @@ def run_night_world(faction="witch", retrain=False):
     if retrain:
         night_train_logic(faction=faction)
 
-    for index in range(5):
-        log_msg(f"夜战尝试 {index + 1}/5", level=0, log_path=get_log_path())
-        night_battle_logic(faction=faction)
+    if battle: 
+        for index in range(10):
+            log_msg(f"夜战尝试 {index + 1}/10", level=0, log_path=get_log_path())
+            night_battle_logic(faction=faction)
 
     # 最后再调整一下视角，准备切回主世界
     set_max_zoom_out()

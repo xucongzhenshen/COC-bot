@@ -5,6 +5,7 @@ import os
 import random
 import subprocess
 import time
+from datetime import datetime
 import ddddocr
 import cv2
 import numpy as np
@@ -18,16 +19,33 @@ logging.getLogger("airtest").setLevel(logging.WARNING)
 LOG_LEVEL = 0
 RUNTIME_LOG_PATH = None
 
-def set_log_level(level):
+def init_log(loglevel=0, log_path=None):
     global LOG_LEVEL
-    LOG_LEVEL = level
+    try:
+        LOG_LEVEL = int(loglevel)
+    except (TypeError, ValueError):
+        LOG_LEVEL = 0
 
+    global RUNTIME_LOG_PATH
+    if log_path:
+        RUNTIME_LOG_PATH = os.path.abspath(log_path)
+    else:
+        curr_path = os.path.dirname(__file__)
+        RUNTIME_LOG_PATH = os.path.join(curr_path, "log")
+    os.makedirs(RUNTIME_LOG_PATH, exist_ok=True)
+
+    # 在日志目录下创建一个新的日志文件，命名为 cocbot_YYYYMMDD_HHMMSS.log
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = f"cocbot_{timestamp}.log"
+    with open(os.path.join(RUNTIME_LOG_PATH, log_file), "w") as f:
+        pass
+    
 
 def get_log_path(log_path=None):
-    if log_path:
-        return log_path
     if RUNTIME_LOG_PATH:
         return RUNTIME_LOG_PATH
+    if log_path:
+        return os.path.abspath(log_path)
     curr_path = os.path.dirname(__file__)
     return os.path.join(curr_path, "log")
 
@@ -41,7 +59,8 @@ def capture_debug_snapshot(problem_desc, log_path=None):
         safe_desc = "unknown_issue"
     safe_desc = safe_desc[:60]
 
-    filename = f"debug_{safe_desc}_{int(time.time())}.png"
+    readable_ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"debug_{safe_desc}_{readable_ts}.png"
     filepath = os.path.join(active_log_path, filename)
     try:
         G.DEVICE.snapshot(filepath)
@@ -98,14 +117,15 @@ def build_airtest_uri(device_name, cap_method, touch_method, ori_method):
     )
 
 
-def random_touch(pos, offset=5):
+def random_touch(pos, offset=5, min_sleep_time=0.5, max_sleep_time=1.0):
     """带随机偏移的点击"""
     if pos:
         x, y = pos
         target_x = x + random.randint(-offset, offset)
         target_y = y + random.randint(-offset, offset)
         touch([target_x, target_y])
-        sleep(random.uniform(0.5, 1.0))
+        random_sleep = random.uniform(min_sleep_time, max_sleep_time)
+        sleep(random_sleep)
     else:
         active_log_path = get_log_path()
         log_msg("random_touch: 无效位置，无法点击", level=0, log_path=active_log_path)
@@ -116,13 +136,13 @@ def random_touch(pos, offset=5):
 def close_popups():
     """处理各种弹窗和练兵完成提示"""
     while exists(Assets.CLOSE):
-        random_touch(exists(Assets.CLOSE))
+        random_touch(exists(Assets.CLOSE), max_sleep_time=0.5)
         sleep(1)
     while exists(Assets.CLOSE_ACTIVITY):
-        random_touch(exists(Assets.CLOSE_ACTIVITY))
+        random_touch(exists(Assets.CLOSE_ACTIVITY), max_sleep_time=0.5)
         sleep(1)
     while exists(Assets.BTN_CONFIRM):
-        random_touch(exists(Assets.BTN_CONFIRM))
+        random_touch(exists(Assets.BTN_CONFIRM), max_sleep_time=0.5)
         sleep(1)
 
 
@@ -144,12 +164,13 @@ def ensure_screenshot_ready(max_retries=5):
 
 
 def setup_runtime(script_file, uri, log_path, project_root):
-    global RUNTIME_LOG_PATH
-    RUNTIME_LOG_PATH = log_path
+    # Avoid resetting log level when caller already initialized logging.
+    if RUNTIME_LOG_PATH is None:
+        init_log(log_path=log_path)
     connect_device(uri)
     auto_setup(
         script_file,
-        logdir=log_path,
+        logdir=get_log_path(),
         devices=[uri],
         project_root=project_root,
     )
@@ -300,6 +321,7 @@ def get_text_from_roi(roi=ROI_COUNTDOWN):
         # 如果报错，返回空字符串，不中断主程序
         log_msg(f"[OCR Error] {e}", level=0, log_path=get_log_path())
         return ""
+
 
 def delete_img_in_log(log_dir=None):
     """

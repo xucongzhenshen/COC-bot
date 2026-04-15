@@ -1,0 +1,1 @@
+帮我重构代码，将这里的移动与定位，世界检测与切换逻辑全部包装成一个单独的类来管理，定位的功能就直接在类内初始化一个一个#sym:adowParallelogramDetector 来实现。这个类要维护当前的世界类型与当前屏幕中心偏离地图中心的位移。并在#sym:MeadowParallelogramDetector  增加

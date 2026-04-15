@@ -6,7 +6,7 @@ from .common import (
     exists,
     log_msg,
     random_touch,
-    set_log_level,
+    init_log,
     setup_runtime,
     touch,
     start_clash_of_clans,

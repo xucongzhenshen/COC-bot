@@ -39,9 +39,9 @@ class ServiceFactory:
 
         world_detector = WorldDetector()
         meadow_detector = MeadowDetector()
-        air_defense_detector = AirDefenseDetector()
+        air_defense_detector = AirDefenseDetector(self.config)
         attack_optimizer = AttackOptimizer()
-        calibrated_movement_controller = CalibratedMovementController()
+        calibrated_movement_controller = CalibratedMovementController(meadow_detector=meadow_detector)
         game_initializer = GameInitializer(self.config, logger, device_manager)
 
         return ServiceContainer(

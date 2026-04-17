@@ -30,6 +30,7 @@ coc_bot/
 │   └── night_settings.json
 ├── data/ 
 │   ├── assets/                             # 存放模板图片、OCR 模型等静态资源
+│   ├── game_data/                          # 存放具体的游戏数据(.csv)
 │   └── sample_imgs/                        # 存放从游戏采样获得的草地图样
 ├── logs/                                   # 日志输出目录
 ├── src/
@@ -39,11 +40,13 @@ coc_bot/
 │   │   └── app_builder.py
 │   ├── services/                           # 基础服务层（原子功能）
 │   │   ├── core/
-│   │   │   ├── device_manager.py
+│   │   │   ├── __init__.py
+│   │   │   ├── device_manager.py           # 设备的启动，连接
 │   │   │   ├── basic_operator.py
 │   │   │   └── logger.py
 │   │   ├── perception/                             # 感知层（识别定位，只读游戏状态）
 │   │   │   ├── __init__.py
+│   │   │   ├── world_detector.py                   # WorldDetector（辨别当前所在世界）
 │   │   │   ├── meadow_detector.py                  # MeadowDetector（草地定位）
 │   │   │   └── air_defense_detector.py             # AirDefenseDetector（防空火箭识别）
 │   │   ├── decision/                               # 决策层（策略计算，无状态操作）
@@ -51,12 +54,13 @@ coc_bot/
 │   │   │   └── attack_optimizer.py                 # AttackOptimizer（01背包求解）
 │   │   ├── execution/                              # 执行层（写操作，改变游戏状态）
 │   │   │   ├── __init__.py
+│   │   │   ├── game_initializer.py                 # GameInitializer（游戏启动，重启，关活动）
 │   │   │   └── calibrated_movement_controller.py   # CalibratedMovementController
 │   ├── logic/                                      # 业务逻辑层
 │   │   ├── base_bot.py                             # Bot 父类接口
 │   │   ├── home_bot.py
 │   │   ├── night_bot.py
-│   │   └── main_loop.py                            # 调度中心
+│   │   └── main_loop.py                    # 调度中心，游戏的启动，关闭，进入界面时的关活动
 │   └── utils/                              # 纯工具类（不依赖任何服务的静态函数）
 │       └── assests.py                  # 定义所有图标
 ├── main.py                         # 程序唯一入口
@@ -101,7 +105,8 @@ decision/execution → perception → core
 
 | 服务                   | 职责               | 输入输出                            |
 | :--------------------- | :----------------- | :---------------------------------- |
-| **MeadowDetector**     | 草地特征识别与定位 | 截图 → 草地位置/置信度              |
+| **WorldDetector**     | 所在世界识别 | 截图 → 当前世界（home/night）              |
+| **MeadowDetector**     | 草地特征识别与定位 | 截图 → 草地识别结果/地图中心              |
 | **AirDefenseDetector** | 防空火箭目标识别   | 截图 → 目标列表（位置、类型、等级） |
 
 **设计约束**：
@@ -128,6 +133,7 @@ decision/execution → perception → core
 
 | 服务                             | 职责                       | 核心机制                                            |
 | :------------------------------- | :------------------------- | :-------------------------------------------------- |
+| **GameInitializer** | 游戏启动，重启，关活动 |  |
 | **CalibratedMovementController** | 基于追踪回正的分段移动控制 | 移动→检测偏差→修正→继续，使用Meadow实现世界视角回正 |
 
 **设计约束**：

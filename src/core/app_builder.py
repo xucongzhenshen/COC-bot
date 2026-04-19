@@ -14,12 +14,14 @@ class AppBuilder:
             NightBot(self.config.night_bot, self.services),
         ]
 
-    def build_main_loop(self):
+    def build_main_loop(self, runtime_script_file):
         bots = self.build_bots()
         return MainLoop(
             config=self.config,
             logger=self.services.logger,
             world_detector=self.services.world_detector,
             game_initializer=self.services.game_initializer,
+            device_manager=self.services.device_manager,
+            runtime_script_file=runtime_script_file,
             bots=bots,
         )

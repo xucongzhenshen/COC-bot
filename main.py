@@ -9,12 +9,8 @@ from src.core.service_factory import ServiceFactory
 def main():
     args = parse_args()
     config = ConfigManager().load(args)
-
     services = ServiceFactory(config).build()
-    services.device_manager.connect_runtime(__file__)
-    services.game_initializer.startup()
-
-    main_loop = AppBuilder(config, services).build_main_loop()
+    main_loop = AppBuilder(config, services).build_main_loop(__file__)
     main_loop.run()
 
 

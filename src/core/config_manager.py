@@ -180,9 +180,9 @@ class ConfigManager:
             "touch_method": "MINITOUCH",
             "ori_method": "ADBORI",
             "loglevel": 2,
-            "log_path": "logs/log_global",
+            "log_path": f"logs/global",
             "run_times": 50,
-            "version": "tencent",
+            "version": "global",
             "home_retrain": False,
             "night_retrain": False,
             "home_battle": True,
@@ -204,6 +204,7 @@ class ConfigManager:
             "home_army_setting_path": os.path.join("configs", "army_setting", "home"),
             "night_army_setting_path": os.path.join("configs", "army_setting", "night"),
             "sample_path": os.path.join("data", "sample_imgs", "night"),
+            "device_shortcut_dir": "devices",
         }
         self._home_fight_defaults = {
             "dragon_number": 10,
@@ -224,6 +225,7 @@ class ConfigManager:
         self.home_filter = {"gold": 400000, "water": 400000, "oil": 1500}
         self.home_army_setting_path = "configs/army_setting/home"
         self.night_army_setting_path = "configs/army_setting/night"
+        self.device_shortcut_dir = "devices"
 
         self.home_bot: Optional[BotConfig] = None
         self.night_bot: Optional[BotConfig] = None
@@ -287,6 +289,7 @@ class ConfigManager:
         data["home_fight_config_path"] = self._abs_path(data["home_fight_config_path"])
         data["home_army_setting_path"] = self._abs_path(data["home_army_setting_path"])
         data["night_army_setting_path"] = self._abs_path(data["night_army_setting_path"])
+        data["device_shortcut_dir"] = self._abs_path(data["device_shortcut_dir"])
         data["home_filter"] = self._parse_home_filter(data["home_filter"])
 
         home_fight = dict(self._home_fight_defaults)

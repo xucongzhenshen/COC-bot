@@ -1,14 +1,14 @@
 {
-  "device": "emulator-5554",
+  "device": "emulator-5556",
   "cap_method": "MINICAP",
   "touch_method": "MINITOUCH",
   "ori_method": "ADBORI",
   "loglevel": 1,
-  "log_path": "log",
+  "log_path": "logs/global",
   "run_times": 50,
-  "version": "tencent",
+  "version": "global",
   "home_faction": "dragon",
-  "night_faction": "witch",
+  "night_faction": "witch_1",
   "home_retrain": false,
   "night_retrain": false,
   "home_battle": true,
@@ -19,8 +19,5 @@
     "gold": 400000,
     "water": 400000,
     "oil": 1500
-  },
-  "home_fight_config_path": "config/home_fight.json",
-  "lightning_data_path": "GameData/home/lightning_spell.csv",
-  "anti_aircraft_data_path": "GameData/home/anti_aircraft_rocket.csv"
+  }
 }

@@ -20,7 +20,7 @@ class HomeBot(BaseBot):
         self.logger.info("正在调整主世界视角", level=1)
         self.op.swipe((800, 600), (400, 200), duration=0.5)
         self.op.sleep(0.5)
-        self.move.move_with_tracking((200, 250), max_step_px=240)
+        self.move.move_with_tracking((200, 300), max_step_px=240)
         self.op.sleep(0.5)
 
     def collect_resources(self):

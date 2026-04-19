@@ -1,13 +1,24 @@
 import csv
 import math
 
-from src.cocbot._assets import Assets
-from src.cocbot.common import find_all, get_log_path, log_msg
+from src.utils import Assets
 
 
 class AirDefenseDetector:
-    def __init__(self, config):
+    def __init__(self, config, basic_operator=None, logger=None):
         self.config = config
+        self.basic_operator = basic_operator
+        self.logger = logger
+
+    def _log(self, msg, level=1):
+        if self.logger is None:
+            return
+        if level == 0:
+            self.logger.error(msg)
+        elif level == 2:
+            self.logger.debug(msg)
+        else:
+            self.logger.info(msg, level=1)
 
     @staticmethod
     def _distance(p1, p2):
@@ -39,7 +50,10 @@ class AirDefenseDetector:
 
         raw_detects = []
         for level, template in level_template_map.items():
-            matches = find_all(template)
+            if self.basic_operator is None:
+                matches = []
+            else:
+                matches = self.basic_operator.find_all(template)
             if not matches:
                 continue
             for match in matches:
@@ -61,5 +75,5 @@ class AirDefenseDetector:
             deduped.append(item)
 
         detail = ", ".join([f"L{item['level']}@{item['position']}" for item in deduped])
-        log_msg(f"检测到 {len(deduped)} 个防空火箭: {detail}", level=1, log_path=get_log_path())
+        self._log(f"检测到 {len(deduped)} 个防空火箭: {detail}", level=1)
         return deduped

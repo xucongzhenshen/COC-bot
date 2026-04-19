@@ -12,7 +12,7 @@ def get_project_root(current_file=__file__, marker='.git'):
     for parent in [current_path] + list(current_path.parents):
         if (parent / marker).exists():
             return parent
-    return current_path / '../../../../'   # 如果没有找到标记文件，默认返回当前文件的上四级目录作为项目根
+    return current_path / '../../../'   # 如果没有找到标记文件，默认返回当前文件的上四级目录作为项目根
 
 data_dir = get_project_root() / 'data' / 'assets'
 
@@ -35,11 +35,11 @@ class Assets:
     # 公共素材（Common Assets）
     # =========================
     # --- BTN（用于关闭弹窗、确认、翻页、搜索与删除） ---
-    CLOSE_ACTIVITY = Template(get_image_path("commom/close_activity.png"), record_pos=(0.317, -0.156), resolution=(2560, 1440))
-    CLOSE = Template(get_image_path("commom/close.png"), record_pos=(0.399, -0.202), resolution=(2560, 1440))
-    BTN_BACK = Template(get_image_path("commom/btn_back.png"), record_pos=(-0.0, 0.194), resolution=(2560, 1440))
-    BTN_CONFIRM = Template(get_image_path("commom/btn_confirm.png"), record_pos=(0.011, 0.188), resolution=(2560, 1440))
-    BTN_TRAIN = Template(get_image_path("commom/btn_train.png"), record_pos=(-0.46, 0.126), resolution=(2560, 1440))
+    CLOSE_ACTIVITY = Template(get_image_path("common/close_activity.png"), record_pos=(0.317, -0.156), resolution=(2560, 1440))
+    CLOSE = Template(get_image_path("common/close.png"), record_pos=(0.399, -0.202), resolution=(2560, 1440))
+    BTN_BACK = Template(get_image_path("common/btn_back.png"), record_pos=(-0.0, 0.194), resolution=(2560, 1440))
+    BTN_CONFIRM = Template(get_image_path("common/btn_confirm.png"), record_pos=(0.011, 0.188), resolution=(2560, 1440))
+    BTN_TRAIN = Template(get_image_path("common/btn_train.png"), record_pos=(-0.46, 0.126), resolution=(2560, 1440))
 
 
     # =========================

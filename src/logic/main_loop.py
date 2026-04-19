@@ -22,7 +22,7 @@ class MainLoop:
         world = self.world_detector.detect(auto_zoom=True)
         bot = self._pick_bot(world)
         if bot is None:
-            raise RuntimeError(f"无法识别当前世界: {world}")
+            self.logger.raise_with_screenshot(f"无法识别当前世界: {world}")
         bot.run_bot()
         self.logger.info(f"第 {index + 1} 轮主循环完成", level=0)
 

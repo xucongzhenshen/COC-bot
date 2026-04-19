@@ -10,8 +10,8 @@ class AppBuilder:
 
     def build_bots(self):
         return [
-            HomeBot(self.services.logger),
-            NightBot(self.services.logger),
+            HomeBot(self.config.home_bot, self.services),
+            NightBot(self.config.night_bot, self.services),
         ]
 
     def build_main_loop(self):

@@ -1,3 +1,3 @@
-from .assets.assets import Assets
+from .assets import Assets
 
 __all__ = ["Assets"]

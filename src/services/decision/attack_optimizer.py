@@ -1,10 +1,28 @@
 import math
+import csv
+from typing import cast
 
 
 class AttackOptimizer:
+    def __init__(self, config, logger):
+        self.config = config
+        self.logger = logger
+
     @staticmethod
     def _distance(p1, p2):
         return math.hypot(p1[0] - p2[0], p1[1] - p2[1])
+
+    def load_lightning_damage(self, lightning_level, csv_path=None):
+        config_path = getattr(self.config, "lightning_data_path", None)
+        data_path = csv_path or config_path
+        if not data_path:
+            self.logger.raise_with_screenshot("缺少 lightning_spell.csv 路径", ValueError)
+        with open(data_path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if int(row["Level"]) == int(lightning_level):
+                    return int(row["TotalDamage"])
+        self.logger.raise_with_screenshot(f"未找到闪电法术等级数据: {lightning_level}", ValueError)
 
     def plan_lightning_targets(self, anti_aircraft_list, lightning_number, lightning_damage, deploy_point):
         candidates = []
@@ -97,3 +115,11 @@ class AttackOptimizer:
             "remaining_dp_second": remaining_dp_second,
             "total_strikes_used": total_strikes_used,
         }
+
+    def pick_lightning_targets(self, anti_aircraft_list, lightning_number, lightning_damage, deploy_point):
+        return self.plan_lightning_targets(
+            anti_aircraft_list=anti_aircraft_list,
+            lightning_number=lightning_number,
+            lightning_damage=lightning_damage,
+            deploy_point=deploy_point,
+        )

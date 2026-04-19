@@ -1,0 +1,28 @@
+{
+    "witch_1": {
+        "first_army": {
+            "giant_number": 1,
+            "witch_number": 5
+        },
+        "second_army": {
+            "giant_number": 1,
+            "witch_number": 1
+        }
+    },
+    "witch_2": {
+        "first_army": {
+            "giant_number": 1,
+            "witch_number": 4
+        },
+        "second_army": {
+            "witch_number": 1
+        }
+    },
+    "archer": {
+        "first_army": {
+            "giant_number": 3,
+            "archer_number": 1
+            },
+        "second_army": {}   
+    }
+}

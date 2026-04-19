@@ -128,17 +128,17 @@ class HomeBattleExecutor(BattleExecutor):
         dragon_icon = self.op.exists(Assets.DRAGON_DEPLOY)
         if not dragon_icon:
             self.logger.raise_with_screenshot("未找到龙部署按钮")
-        self.op.random_touch(dragon_icon, min_sleep_time=0.05, max_sleep_time=0.1)
+        self.op.random_touch(dragon_icon, min_sleep_time=0.00, max_sleep_time=0.02)
 
         for point in self._get_deploy_points():
-            self.op.random_touch(point, min_sleep_time=0.02, max_sleep_time=0.04)
+            self.op.random_touch(point, min_sleep_time=0.00, max_sleep_time=0.02)
             if "离战斗结束还有" in self.op.get_text():
                 valid_deploy_point = point
                 break
 
         spell_pos = self.op.exists(Assets.LIGHTNING_SPELL_DEPLOY)
         if spell_pos:
-            self.op.random_touch(spell_pos, min_sleep_time=0.05, max_sleep_time=0.1)
+            self.op.random_touch(spell_pos, min_sleep_time=0.00, max_sleep_time=0.02)
             rockets = self.air_defense_detector.detect()
             if rockets:
                 damage = self.attack_optimizer.load_lightning_damage(lightning_level)
@@ -150,7 +150,7 @@ class HomeBattleExecutor(BattleExecutor):
                 )
                 for target in plan["plan"]:
                     for _ in range(target["strikes_needed"]):
-                        self.op.random_touch(target["position"], offset=1, min_sleep_time=0.02, max_sleep_time=0.04)
+                        self.op.random_touch(target["position"], offset=1, min_sleep_time=0.00, max_sleep_time=0.02)
 
         dragon_seq = self.army_manager.expand_army_sequence({"dragon": dragon_number})
         self.deploy_sequence_to_point(dragon_seq, valid_deploy_point)

@@ -87,6 +87,7 @@ class HomeBattleExecutor(BattleExecutor):
 
         waited = 0
         while waited < 50:
+            self.logger.debug("正在搜索对手...")
             if "开战倒计时" in self.op.get_text():
                 return
             self.op.sleep(2)
@@ -225,6 +226,7 @@ class NightBattleExecutor(BattleExecutor):
     def _wait_battle_finish(self):
         timeout = 150
         while timeout > 0 and "离战斗结束还有" in self.op.get_text():
+            self.logger.debug("正在战斗中...")
             self.op.sleep(5)
             timeout -= 5
 

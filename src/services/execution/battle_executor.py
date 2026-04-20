@@ -29,6 +29,27 @@ class BattleExecutor(ABC):
     def deploy_asset_by_troop(self, troop):
         pass
 
+    @abstractmethod
+    def execute(self):
+        pass
+
+    @staticmethod
+    def _get_spawn_points():
+        points = SPAWN_POINTS.copy()
+        random.shuffle(points)
+        return points
+
+    def _on_battle_finish(self):
+        pass
+
+    def _wait_battle_finish(self):
+        timeout = 150
+        while timeout > 0 and "离战斗结束还有" in self.op.get_text():
+            self.logger.debug("正在战斗中...")
+            self.op.sleep(5)
+            timeout -= 5
+        self._on_battle_finish()
+
     def deploy_sequence_to_point(self, seq, point, hero_names=None, initial_troop=None):
         hero_names = set(hero_names or [])
         last_troop = initial_troop
@@ -51,11 +72,25 @@ class BattleExecutor(ABC):
             self.op.random_touch(point, min_sleep_time=0.0, max_sleep_time=0.02)
             last_troop = troop
 
-    @abstractmethod
-    def execute(self):
-        pass
-
-
+    def _return_to_main(self):
+        timeout = 30
+        back = self.op.exists(Assets.BTN_BACK)
+        if not back:
+            self.logger.raise_with_screenshot("未找到返回按钮")
+        self.op.random_touch(back)
+        while timeout > 0 and not self.op.exists(Assets.BTN_TRAIN):
+            self.logger.debug("正在返回主界面...")
+            self.op.sleep(2)
+            timeout -= 2
+            if self.op.exists(Assets.BTN_CONFIRM):
+                self.op.random_touch(self.op.exists(Assets.BTN_CONFIRM))
+                self.op.sleep(2)
+                timeout -= 2
+        if self.op.exists(Assets.BTN_TRAIN):
+            self.logger.info("成功返回主界面", level=1)
+        else:
+            self.logger.raise_with_screenshot("未能成功返回主界面")
+    
 class HomeBattleExecutor(BattleExecutor):
     def __init__(self, logger, op, army_manager, air_defense_detector, attack_optimizer, filter_config=None):
         super().__init__(logger=logger, op=op, army_manager=army_manager)
@@ -112,12 +147,6 @@ class HomeBattleExecutor(BattleExecutor):
             return False
         return True
 
-    @staticmethod
-    def _get_deploy_points():
-        points = SPAWN_POINTS.copy()
-        random.shuffle(points)
-        return points
-
     def _deploy_dragons(self):
         faction_setting = self.army_manager.get_faction_setting()
         dragon_number = int(faction_setting.get("dragon_number", 10))
@@ -130,7 +159,7 @@ class HomeBattleExecutor(BattleExecutor):
             self.logger.raise_with_screenshot("未找到龙部署按钮")
         self.op.random_touch(dragon_icon, min_sleep_time=0.00, max_sleep_time=0.02)
 
-        for point in self._get_deploy_points():
+        for point in self._get_spawn_points():
             self.op.random_touch(point, min_sleep_time=0.00, max_sleep_time=0.02)
             if "离战斗结束还有" in self.op.get_text():
                 valid_deploy_point = point
@@ -150,7 +179,7 @@ class HomeBattleExecutor(BattleExecutor):
                 )
                 for target in plan["plan"]:
                     for _ in range(target["strikes_needed"]):
-                        self.op.random_touch(target["position"], offset=1, min_sleep_time=0.00, max_sleep_time=0.02)
+                        self.op.random_touch(target["position"], offset=1, min_sleep_time=0.00, max_sleep_time=0.00)
 
         dragon_seq = self.army_manager.expand_army_sequence({"dragon": dragon_number})
         self.deploy_sequence_to_point(dragon_seq, valid_deploy_point)
@@ -171,32 +200,23 @@ class HomeBattleExecutor(BattleExecutor):
 
         self._search_target(first_search=True)
         while True:
+            self.op.sleep(3)
             if not self._filter_resource():
                 self.logger.info("资源不满足要求，继续搜索下一个目标", level=1)
                 self._search_target(first_search=False)
+                continue
             if self.army_manager.faction == "dragon" and len(self.air_defense_detector.detect()) < 3:
                 self.logger.info("可能有未检测到的防空火箭，继续搜索下一个目标", level=1)
                 self._search_target(first_search=False)
+                continue
+            self.logger.info("找到合适的目标，开始部署", level=1)
             break
 
         if self.army_manager.faction == "dragon":
             self._deploy_dragons()
 
-        timeout = 200
-        while timeout > 0 and "离战斗结束还有" in self.op.get_text():
-            self.logger.debug("正在战斗中...")
-            self.op.sleep(5)
-            timeout -= 5
-
-        back = self.op.exists(Assets.BTN_BACK)
-        if not back:
-            self.logger.raise_with_screenshot("未找到返回按钮")
-        self.op.random_touch(back)
-        self.op.sleep(1)
-        btn_confirm = self.op.exists(Assets.BTN_CONFIRM)
-        if btn_confirm:
-            self.op.random_touch(btn_confirm)
-        self.op.sleep(1)
+        self._wait_battle_finish()
+        self._return_to_main()
 
 
 class NightBattleExecutor(BattleExecutor):
@@ -217,19 +237,7 @@ class NightBattleExecutor(BattleExecutor):
             return Assets.FIGHTER_JET_DEPLOY
         return None
 
-    @staticmethod
-    def _pick_spawn():
-        points = SPAWN_POINTS.copy()
-        random.shuffle(points)
-        return points
-
-    def _wait_battle_finish(self):
-        timeout = 150
-        while timeout > 0 and "离战斗结束还有" in self.op.get_text():
-            self.logger.debug("正在战斗中...")
-            self.op.sleep(5)
-            timeout -= 5
-
+    def _on_battle_finish(self):
         end_btn = self.op.exists(Assets.BTN_END)
         if end_btn:
             self.op.random_touch(end_btn)
@@ -264,7 +272,7 @@ class NightBattleExecutor(BattleExecutor):
         self.op.random_touch(probe_icon, min_sleep_time=0.02, max_sleep_time=0.04)
 
         valid = [2396, 800]
-        for point in self._pick_spawn():
+        for point in self._get_spawn_points():
             self.op.random_touch(point, min_sleep_time=0.02, max_sleep_time=0.04)
             if self.op.exists(Assets.BTN_GIVE_UP):
                 valid = point
@@ -297,13 +305,4 @@ class NightBattleExecutor(BattleExecutor):
 
         self._deploy_night_army_once()
         self._wait_battle_finish()
-
-        back = self.op.exists(Assets.BTN_BACK)
-        if not back:
-            self.logger.raise_with_screenshot("未找到返回按钮")
-        self.op.random_touch(back)
-        self.op.sleep(1)
-        confirm = self.op.exists(Assets.BTN_CONFIRM)
-        if confirm:
-            self.op.random_touch(confirm)
-        self.op.sleep(1)
+        self._return_to_main()

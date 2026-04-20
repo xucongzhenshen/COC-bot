@@ -74,8 +74,11 @@ class LoggerService:
     def debug(self, message):
         self._write(message, 2)
 
+    def warning(self, message, level=1):
+        self._write(f"[WARN] {message}", level)
+
     def raise_with_screenshot(self, message, exc_type=RuntimeError):
-        screenshot_path = self.capture_screenshot(message)
+        screenshot_path = self.capture_screenshot(f"debug_{message}")
         if screenshot_path:
             self.error(f"{message} | 截图: {screenshot_path}")
         else:

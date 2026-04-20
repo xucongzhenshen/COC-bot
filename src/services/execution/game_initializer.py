@@ -80,15 +80,26 @@ class GameInitializer:
             self.logger.error(f"启动命令失败: {result.stderr or result.stdout}")
             return False
 
-        start_time = time.time()
-        while time.time() - start_time < 90:
-            if exists(Assets.BTN_TRAIN):
-                return True
-            sleep(2)
-        return False
+        self.logger.info("启动命令已发送，等待游戏启动...")
+        return self.wait_for_game_start(timeout=90)
 
     def _stop_clash_of_clans(self, device_serial="emulator-5554", version="tencent", adb_path="adb"):
         package_name = "com.supercell.clashofclans" if version == "global" else "com.tencent.tmgp.supercell.clashofclans"
         cmd = [adb_path, "-s", device_serial, "shell", "am", "force-stop", package_name]
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         return result.returncode == 0
+    
+    def _is_game_started(self):
+        if exists(Assets.BTN_TRAIN):
+            return True
+        return False
+    
+    def wait_for_game_start(self, timeout=90):
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            if self._is_game_started():
+                self.logger.info("游戏启动成功")
+                return True
+            sleep(2)
+        self.logger.error("等待游戏启动超时")
+        return False

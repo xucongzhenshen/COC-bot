@@ -164,6 +164,24 @@ def parse_args():
         default=None,
         help="夜世界配兵配置路径，支持目录或 JSON 文件，默认 configs/army_setting/night",
     )
+    parser.add_argument(
+        "--exception_retry_times",
+        type=int,
+        default=None,
+        help="异常恢复最大重试次数，默认 3",
+    )
+    parser.add_argument(
+        "--exception_recovery_wait_seconds",
+        type=int,
+        default=None,
+        help="异常恢复时每轮等待秒数，默认 5",
+    )
+    parser.add_argument(
+        "--exception_wait_for_start_timeout",
+        type=int,
+        default=None,
+        help="异常恢复时等待游戏启动超时（秒），默认 50",
+    )
     return parser.parse_args()
 
 
@@ -203,6 +221,9 @@ class ConfigManager:
             "anti_aircraft_data_path": os.path.join("data", "game_data", "home", "anti_aircraft_rocket.csv"),
             "home_army_setting_path": os.path.join("configs", "army_setting", "home"),
             "night_army_setting_path": os.path.join("configs", "army_setting", "night"),
+            "exception_retry_times": 3,
+            "exception_recovery_wait_seconds": 5,
+            "exception_wait_for_start_timeout": 50,
             "sample_path": os.path.join("data", "sample_imgs", "night"),
             "device_shortcut_dir": "devices",
         }
@@ -282,6 +303,9 @@ class ConfigManager:
         data["home_attempts"] = int(data["home_attempts"])
         data["night_attempts"] = int(data["night_attempts"])
         data["loglevel"] = int(data["loglevel"])
+        data["exception_retry_times"] = int(data["exception_retry_times"])
+        data["exception_recovery_wait_seconds"] = int(data["exception_recovery_wait_seconds"])
+        data["exception_wait_for_start_timeout"] = int(data["exception_wait_for_start_timeout"])
 
         data["log_path"] = self._abs_path(data["log_path"])
         data["lightning_data_path"] = self._abs_path(data["lightning_data_path"])

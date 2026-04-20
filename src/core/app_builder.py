@@ -21,6 +21,7 @@ class AppBuilder:
             logger=self.services.logger,
             world_detector=self.services.world_detector,
             game_initializer=self.services.game_initializer,
+            exception_handler=self.services.exception_handler,
             device_manager=self.services.device_manager,
             runtime_script_file=runtime_script_file,
             bots=bots,

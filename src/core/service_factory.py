@@ -8,6 +8,7 @@ from src.services.execution.calibrated_movement_controller import CalibratedMove
 from src.services.execution.army_manager import HomeArmyManager, NightArmyManager
 from src.services.execution.battle_executor import HomeBattleExecutor, NightBattleExecutor
 from src.services.execution.game_initializer import GameInitializer
+from src.services.exception.exception_handler import ExceptionHandler
 from src.services.perception.air_defense_detector import AirDefenseDetector
 from src.services.perception.meadow_detector import MeadowDetector
 from src.services.perception.world_detector import WorldDetector
@@ -27,6 +28,7 @@ class ServiceContainer:
     home_battle_executor: HomeBattleExecutor
     night_battle_executor: NightBattleExecutor
     game_initializer: GameInitializer
+    exception_handler: ExceptionHandler
     calibrated_movement_controller: CalibratedMovementController
 
 
@@ -73,6 +75,12 @@ class ServiceFactory:
         )
         calibrated_movement_controller = CalibratedMovementController(logger=logger)
         game_initializer = GameInitializer(self.config, logger, device_manager)
+        exception_handler = ExceptionHandler(
+            config=self.config,
+            op=basic_operator,
+            logger=logger,
+            game_initializer=game_initializer,
+        )
 
         return ServiceContainer(
             logger=logger,
@@ -87,5 +95,6 @@ class ServiceFactory:
             home_battle_executor=home_battle_executor,
             night_battle_executor=night_battle_executor,
             game_initializer=game_initializer,
+            exception_handler=exception_handler,
             calibrated_movement_controller=calibrated_movement_controller,
         )

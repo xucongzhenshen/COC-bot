@@ -4,11 +4,22 @@ from airtest.core.api import sleep
 
 
 class MainLoop:
-    def __init__(self, config, logger, world_detector, game_initializer, device_manager, runtime_script_file, bots):
+    def __init__(
+        self,
+        config,
+        logger,
+        world_detector,
+        game_initializer,
+        exception_handler,
+        device_manager,
+        runtime_script_file,
+        bots,
+    ):
         self.config = config
         self.logger = logger
         self.world_detector = world_detector
         self.game_initializer = game_initializer
+        self.exception_handler = exception_handler
         self.device_manager = device_manager
         self.runtime_script_file = runtime_script_file
         self.bots = bots
@@ -41,5 +52,7 @@ class MainLoop:
                 sleep(sleep_time)
             except Exception as exc:
                 self.logger.error(f"主循环出错: {exc}")
-                self.game_initializer.cleanup_cycle_images()
-                self.game_initializer.recover()
+                handled = self.exception_handler.run_exception_handler(exc)
+                if not handled:
+                    self.logger.error("异常自动恢复失败，执行重启恢复流程")
+                    self.game_initializer.recover()

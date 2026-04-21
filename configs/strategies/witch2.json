@@ -1,0 +1,30 @@
+{
+    "name": "witch strategy 2",
+    "first_sequence": [
+        {
+            "type": "probe",
+            "troop": "giant"
+        },
+        {
+            "type": "hero",
+            "troop": "mecha"
+        },
+        {
+            "type": "deploy",
+            "troop": "witch",
+            "count": 4
+        }
+    ],
+    "second_sequence": [
+        {
+            "type": "probe",
+            "troop": "giant"
+        },
+        {
+            "type": "deploy",
+            "troop": "witch",
+            "count": 1
+        }
+    ]
+
+}

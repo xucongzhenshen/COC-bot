@@ -6,7 +6,7 @@
 **COC-bot** is an advanced automation framework for *Clash of Clans*, built on **Airtest** and **OpenCV**. This project is designed as a deep-learning case study for game automation, focusing on:
 - **State-Machine Workflow**: Intelligent switching between Home and Night bases.
 - **Advanced Computer Vision**: Multi-template matching, confidence-based world detection, and color-space analysis.
-- **OCR-Driven Decision Making**: Using `ddddocr` for real-time battle timers and loading state monitoring.
+- **OCR-Driven Decision Making**: Using `ddddocr` for real-time attack timers and loading state monitoring.
 
 ---
 
@@ -20,8 +20,8 @@
 #### 🌙 Night Base (Builder Base)
 - **Resource Management**: Efficient collection of Builder Gold and Elixir.
 - **Advanced Training System**: Support for clearing barracks and re-training specific army compositions.
-- **Double-Stage Battle Logic**: Supports the new BH10+ two-stage battle mechanics, including reinforcement deployment.
-- **Selectable Battle Styles**:
+- **Double-Stage Attack Logic**: Supports the new BH10+ two-stage attack mechanics, including reinforcement deployment.
+- **Selectable Attack Styles**:
   - 🧙 **Witch Swarm (BH9 focus)**: 
     - *Main Stage*: Hero + 1 Giant (Tank) + 5 Witches (Summoners).
     - *Reinforcements*: 1 Giant + 1 Witch.
@@ -43,7 +43,7 @@
 - **`main.py`**: The central brain. Handles CLI parsing, world scheduling, and exception recovery.
 - **`cocbot/common.py`**: The hardware abstraction layer. Manages ADB connections, `force_snapshot` (for high-res stability), and OCR functions.
 - **`cocbot/advanced.py`**: High-level logic including `detect_world()` (confidence-based weighting) and `pinch-to-zoom` view controls.
-- **`cocbot/home.py` & `night.py`**: Domain-specific tasks. `night.py` contains the complex two-stage battle state machine.
+- **`cocbot/home.py` & `night.py`**: Domain-specific tasks. `night.py` contains the complex two-stage attack state machine.
 - **`cocbot/_assets.py`**: A centralized library for 2K-resolution templates.
 
 #### 4.2 Runtime Workflow
@@ -55,7 +55,7 @@
    |                         |
    +--[HOME]--> [Collect] -> [Ship to Night] --+
    |                                           |
-   +--[NIGHT]--> [Collect] -> [Train] -> [Battle] -> [Back Home]
+  +--[NIGHT]--> [Collect] -> [Train] -> [Attack] -> [Back Home]
    |                                           |
 [Handle Exception] <---------------------------+
 ```
@@ -94,7 +94,7 @@ python main.py --version tencent --night_faction witch
 | ----------------- | --------------- | ------------------- | ---------------------------------------------- |
 | `--device`        | `emulator-5554` | -                   | ADB Serial Number                              |
 | `--version`       | `tencent`       | `tencent`, `global` | Game Package Version                           |
-| `--night_faction` | `witch`         | `witch`, `archer`   | Battle Strategy (BH9 Witch / BH4 Giant-Archer) |
+| `--night_faction` | `witch`         | `witch`, `archer`   | Attack Strategy (BH9 Witch / BH4 Giant-Archer) |
 | `--loglevel`      | `0`             | `0, 1, 2`           | 0: Normal, 1: Flow, 2: Deep Debug              |
 | `--cap_method`    | `JAVACAP`       | `JAVACAP, ADBCAP`   | Capture method (ADBCAP is slower but stabler)  |
 
@@ -103,4 +103,4 @@ python main.py --version tencent --night_faction witch
 ### 7. Technical Notes
 - **2K Support**: This bot is specifically tuned for 2560x1440. Most assets will fail on 1080p without re-scaling.
 - **ADB Versioning**: The project includes logic to force-sync ADB versions between the environment and the emulator to prevent `Device Connection Timeout`.
-- **OCR ROI**: The script uses specific Region of Interest (ROI) scanning for the top-center battle timer to minimize CPU usage.
+- **OCR ROI**: The script uses specific Region of Interest (ROI) scanning for the top-center attack timer to minimize CPU usage.

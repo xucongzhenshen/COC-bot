@@ -8,7 +8,7 @@ class BaseBot(ABC):
         self.services = services
         self.logger = services.logger
         self.trained = not config.retrain
-        self.battle = config.battle
+        self.attack = config.attack
         self.attempts = config.attempts
         self.switch = config.switch
 
@@ -29,7 +29,7 @@ class BaseBot(ABC):
         pass
 
     @abstractmethod
-    def battle_logic(self):
+    def attack_logic(self):
         pass
 
     @abstractmethod
@@ -39,14 +39,14 @@ class BaseBot(ABC):
     def run_bot(self):
         self.righting_pos()
         self.collect_resources()
-        if not self.trained and self.battle:
+        if not self.trained and self.attack:
             self.logger.info("重新训练模型，删除现有配兵", level=0)
             self.train_logic()
             self.trained = True
-        if self.battle:
+        if self.attack:
             for index in range(self.config.attempts):
-                self.logger.info(f"战斗尝试 {index + 1}/{self.config.attempts}", level=0)
-                self.battle_logic()
+                self.logger.info(f"进攻尝试 {index + 1}/{self.config.attempts}", level=0)
+                self.attack_logic()
         self.righting_pos()
         self.collect_resources()
         if self.switch:

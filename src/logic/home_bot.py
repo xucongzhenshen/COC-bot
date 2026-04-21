@@ -9,8 +9,9 @@ class HomeBot(BaseBot):
         self.op = services.basic_operator
         self.world_detector = services.world_detector
         self.move = services.calibrated_movement_controller
-        self.army_manager = services.home_army_manager
-        self.battle_executor = services.home_battle_executor
+        self.troop_trainer = services.home_troop_trainer
+        self.strategy_interpreter = services.home_strategy_interpreter
+        self.attack_executor = services.home_attack_executor
 
     def can_handle(self, world):
         return world == "HOME"
@@ -30,10 +31,11 @@ class HomeBot(BaseBot):
                 self.op.random_touch(icon["result"], offset=5, min_sleep_time=0.2, max_sleep_time=0.4)
 
     def train_logic(self):
-        self.army_manager.train(self.op)
+        training_config = self.strategy_interpreter.infer_training_config()
+        self.troop_trainer.train(self.op, training_config)
 
-    def battle_logic(self):
-        self.battle_executor.execute()
+    def attack_logic(self):
+        self.attack_executor.execute()
 
     def switch_world(self):
         self.op.set_max_zoom_out()

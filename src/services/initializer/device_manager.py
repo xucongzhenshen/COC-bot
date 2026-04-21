@@ -18,7 +18,13 @@ class DeviceManager:
             return True
         
         self.logger.info(f"设备 {self.config.device} 未连接，尝试启动...")
-        return self._start_device_from_shortcut()
+
+        retry_times = int(getattr(self.config, "device_retry_times", 3))
+        for attempt in range(retry_times):
+            if self._start_device_from_shortcut():
+                return True
+            self.logger.warning(f"启动设备失败，重试 {attempt + 1}/{retry_times}")
+        return False
     
     def _is_device_connected(self):
         """检查设备是否已通过ADB连接"""

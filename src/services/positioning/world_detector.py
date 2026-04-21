@@ -24,11 +24,11 @@ class WorldDetector:
             self.basic_operator.set_max_zoom_out()
 
         candidates = [
-            ("HOME", "FIGHT_HOME", Assets.FIGHT_HOME),
-            ("HOME", "FIGHT_HOME_WITH_STAR", Assets.FIGHT_HOME_WITH_STAR),
-            ("HOME", "FIGHT_HOME_WITH_3_STAR", Assets.FIGHT_HOME_WITH_3_STAR),
-            ("NIGHT", "NIGHT_FIGHT", Assets.NIGHT_FIGHT),
-            ("NIGHT", "NIGHT_FIGHT_WITH_STAR", Assets.NIGHT_FIGHT_WITH_STAR),
+            ("HOME", "ATTACK_HOME", Assets.ATTACK_HOME),
+            ("HOME", "ATTACK_HOME_WITH_STAR", Assets.ATTACK_HOME_WITH_STAR),
+            ("HOME", "ATTACK_HOME_WITH_3_STAR", Assets.ATTACK_HOME_WITH_3_STAR),
+            ("NIGHT", "NIGHT_ATTACK", Assets.NIGHT_ATTACK),
+            ("NIGHT", "NIGHT_ATTACK_WITH_STAR", Assets.NIGHT_ATTACK_WITH_STAR),
         ]
 
         best_world = "UNKNOWN"

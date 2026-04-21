@@ -14,9 +14,9 @@ class NightBot(BaseBot):
         self.world_detector = services.world_detector
         self.move = services.calibrated_movement_controller
         self.meadow_detector = services.meadow_detector
-        self.army_manager = services.night_army_manager
-        self.battle_executor = services.night_battle_executor
-        self.fight_once = getattr(config, "fight_once", True)
+        self.troop_trainer = services.night_troop_trainer
+        self.strategy_interpreter = services.night_strategy_interpreter
+        self.attack_executor = services.night_attack_executor
 
     def can_handle(self, world):
         return world == "NIGHT"
@@ -100,10 +100,11 @@ class NightBot(BaseBot):
             cnt += 1
 
     def train_logic(self):
-        self.army_manager.train(self.op)
+        training_config = self.strategy_interpreter.infer_training_config()
+        self.troop_trainer.train(self.op, training_config)
 
-    def battle_logic(self):
-        self.battle_executor.execute()
+    def attack_logic(self):
+        self.attack_executor.execute()
 
     def switch_world(self):
         self.op.set_max_zoom_out()

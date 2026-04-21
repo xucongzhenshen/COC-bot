@@ -1,17 +1,18 @@
 from dataclasses import dataclass
 
 from src.services.core.basic_operator import BasicOperator
-from src.services.core.device_manager import DeviceManager
 from src.services.core.logger import LoggerService
-from src.services.decision.attack_optimizer import AttackOptimizer
-from src.services.execution.calibrated_movement_controller import CalibratedMovementController
-from src.services.execution.army_manager import HomeArmyManager, NightArmyManager
-from src.services.execution.battle_executor import HomeBattleExecutor, NightBattleExecutor
-from src.services.execution.game_initializer import GameInitializer
+from src.services.attack.troop_trainer import HomeTroopTrainer, NightTroopTrainer
+from src.services.attack.strategy_interpreter import HomeStrategyInterpreter, NightStrategyInterpreter
+from src.services.attack.attack_executor import HomeAttackExecutor, NightAttackExecutor
+from src.services.attack.utils.attack_optimizer import AttackOptimizer
+from src.services.attack.utils.air_defense_detector import AirDefenseDetector
 from src.services.exception.exception_handler import ExceptionHandler
-from src.services.perception.air_defense_detector import AirDefenseDetector
-from src.services.perception.meadow_detector import MeadowDetector
-from src.services.perception.world_detector import WorldDetector
+from src.services.initializer.device_manager import DeviceManager
+from src.services.initializer.game_initializer import GameInitializer
+from src.services.movement.calibrated_movement_controller import CalibratedMovementController
+from src.services.positioning.meadow_detector import MeadowDetector
+from src.services.positioning.world_detector import WorldDetector
 
 
 @dataclass
@@ -23,10 +24,12 @@ class ServiceContainer:
     meadow_detector: MeadowDetector
     air_defense_detector: AirDefenseDetector
     attack_optimizer: AttackOptimizer
-    home_army_manager: HomeArmyManager
-    night_army_manager: NightArmyManager
-    home_battle_executor: HomeBattleExecutor
-    night_battle_executor: NightBattleExecutor
+    home_troop_trainer: HomeTroopTrainer
+    night_troop_trainer: NightTroopTrainer
+    home_strategy_interpreter: HomeStrategyInterpreter
+    night_strategy_interpreter: NightStrategyInterpreter
+    home_attack_executor: HomeAttackExecutor
+    night_attack_executor: NightAttackExecutor
     game_initializer: GameInitializer
     exception_handler: ExceptionHandler
     calibrated_movement_controller: CalibratedMovementController
@@ -48,30 +51,41 @@ class ServiceFactory:
         meadow_detector = MeadowDetector({"sample_path": getattr(self.config, "sample_path", None)})
         air_defense_detector = AirDefenseDetector(self.config, basic_operator=basic_operator, logger=logger)
         attack_optimizer = AttackOptimizer(self.config, logger=logger)
-        home_army_manager = HomeArmyManager(
+        home_troop_trainer = HomeTroopTrainer(
             logger=logger,
-            faction=self.config.home_bot.faction,
-            army_setting_path=self.config.home_bot.army_setting_path,
             bot_name="HomeBot",
         )
-        night_army_manager = NightArmyManager(
+        night_troop_trainer = NightTroopTrainer(
             logger=logger,
-            faction=self.config.night_bot.faction,
-            army_setting_path=self.config.night_bot.army_setting_path,
             bot_name="NightBot",
         )
-        home_battle_executor = HomeBattleExecutor(
+        home_strategy_interpreter = HomeStrategyInterpreter(
+            op=basic_operator,
+            logger=logger,
+            cfg=self.config.home_bot,
+            attack_optimizer=attack_optimizer,
+            air_defense_detector=air_defense_detector,
+        )
+        night_strategy_interpreter = NightStrategyInterpreter(
+            op=basic_operator,
+            logger=logger,
+            cfg=self.config.night_bot,
+        )
+        home_attack_executor = HomeAttackExecutor(
             logger=logger,
             op=basic_operator,
-            army_manager=home_army_manager,
+            troop_trainer=home_troop_trainer,
             air_defense_detector=air_defense_detector,
-            attack_optimizer=attack_optimizer,
+            strategy_interpreter=home_strategy_interpreter,
+            faction=self.config.home_bot.faction,
             filter_config=self.config.home_bot.filter_config,
         )
-        night_battle_executor = NightBattleExecutor(
+        night_attack_executor = NightAttackExecutor(
             logger=logger,
             op=basic_operator,
-            army_manager=night_army_manager,
+            troop_trainer=night_troop_trainer,
+            strategy_interpreter=night_strategy_interpreter,
+            attack_twice=not self.config.night_attack_once,
         )
         calibrated_movement_controller = CalibratedMovementController(logger=logger)
         game_initializer = GameInitializer(self.config, logger, device_manager)
@@ -90,10 +104,12 @@ class ServiceFactory:
             meadow_detector=meadow_detector,
             air_defense_detector=air_defense_detector,
             attack_optimizer=attack_optimizer,
-            home_army_manager=home_army_manager,
-            night_army_manager=night_army_manager,
-            home_battle_executor=home_battle_executor,
-            night_battle_executor=night_battle_executor,
+            home_troop_trainer=home_troop_trainer,
+            night_troop_trainer=night_troop_trainer,
+            home_strategy_interpreter=home_strategy_interpreter,
+            night_strategy_interpreter=night_strategy_interpreter,
+            home_attack_executor=home_attack_executor,
+            night_attack_executor=night_attack_executor,
             game_initializer=game_initializer,
             exception_handler=exception_handler,
             calibrated_movement_controller=calibrated_movement_controller,

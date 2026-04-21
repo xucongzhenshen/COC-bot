@@ -71,13 +71,13 @@ class Assets:
     THE_REVENANT_PRINCE_DEPLOY = Template(get_image_path("home/army_deploy/the_revenant_prince_deploy.png"), record_pos=(-0.154, 0.216), resolution=(2560, 1440))
     LIGHTNING_SPELL_DEPLOY = Template(get_image_path("home/army_deploy/lightning_spell_deploy.png"), record_pos=(-0.145, 0.223), resolution=(2560, 1440))
 
-    # --- Fight（用于识别主世界战斗按钮状态） ---
-    FIGHT_HOME = Template(get_image_path("home/fight/fight_home.png"), record_pos=(-0.435, 0.213), resolution=(2560, 1440))
-    FIGHT_HOME_WITH_STAR = Template(get_image_path("home/fight/fight_home_with_star.png"), record_pos=(-0.436, 0.212), resolution=(2560, 1440))
-    FIGHT_HOME_WITH_3_STAR = Template(get_image_path("home/fight/fight_home_with_3_star.png"), record_pos=(-0.436, 0.212), resolution=(2560, 1440))
-    BTN_HOME_SEARCH = Template(get_image_path("home/fight/btn_home_search.png"), record_pos=(-0.329, 0.13), resolution=(2560, 1440))
-    BTN_NEXT = Template(get_image_path("home/fight/btn_next.png"), record_pos=(0.409, 0.116), resolution=(2560, 1440))
-    BTN_FIGHT_CONFIRM = Template(get_image_path("home/fight/btn_fight_confirm.png"), record_pos=(0.383, 0.22), resolution=(2560, 1440))
+    # --- Attack（用于识别主世界进攻按钮状态） ---
+    ATTACK_HOME = Template(get_image_path("home/attack/attack_home.png"), record_pos=(-0.435, 0.213), resolution=(2560, 1440))
+    ATTACK_HOME_WITH_STAR = Template(get_image_path("home/attack/attack_home_with_star.png"), record_pos=(-0.436, 0.212), resolution=(2560, 1440))
+    ATTACK_HOME_WITH_3_STAR = Template(get_image_path("home/attack/attack_home_with_3_star.png"), record_pos=(-0.436, 0.212), resolution=(2560, 1440))
+    BTN_HOME_SEARCH = Template(get_image_path("home/attack/btn_home_search.png"), record_pos=(-0.329, 0.13), resolution=(2560, 1440))
+    BTN_NEXT = Template(get_image_path("home/attack/btn_next.png"), record_pos=(0.409, 0.116), resolution=(2560, 1440))
+    BTN_ATTACK_CONFIRM = Template(get_image_path("home/attack/btn_attack_confirm.png"), record_pos=(0.383, 0.22), resolution=(2560, 1440))
 
     # --- Anti-Aircraft Rocket（用于雷电法术投放定位） ---
     ANTI_AIRCRAFT_ROCKET1 = Template(get_image_path("home/anti_aircraft_rocket/anti_aircraft_rocket1.png"), record_pos=(-0.014, -0.092), resolution=(2560, 1440))
@@ -118,11 +118,13 @@ class Assets:
     FIGHTER_JET_DEPLOY = Template(get_image_path("night/army_deploy/fighter_jet_deploy.png"), record_pos=(-0.4, 0.216), resolution=(2560, 1440))
 
     # --- 战斗状态与结算（用于识别战斗入口、投降/结束、领奖） ---
-    NIGHT_FIGHT = Template(get_image_path("night/fight/night_fight.png"), record_pos=(-0.436, 0.213), resolution=(2560, 1440))
-    NIGHT_FIGHT_WITH_STAR = Template(get_image_path("night/fight/night_fight_with_star.png"), record_pos=(-0.435, 0.229), resolution=(2560, 1440))
-    BTN_SEARCH = Template(get_image_path("night/fight/btn_search.png"), record_pos=(0.241, 0.087), resolution=(2560, 1440))
-    BTN_GIVE_UP = Template(get_image_path("night/fight/btn_give_up.png"), record_pos=(-0.429, 0.109), resolution=(2560, 1440))
-    BTN_END = Template(get_image_path("night/fight/btn_end.png"), record_pos=(-0.43, 0.109), resolution=(2560, 1440))
+    NIGHT_ATTACK = Template(get_image_path("night/attack/night_attack.png"), record_pos=(-0.436, 0.213), resolution=(2560, 1440))
+    NIGHT_ATTACK_WITH_STAR = Template(get_image_path("night/attack/night_attack_with_star.png"), record_pos=(-0.435, 0.229), resolution=(2560, 1440))
+    BTN_SEARCH = Template(get_image_path("night/attack/btn_search.png"), record_pos=(0.241, 0.087), resolution=(2560, 1440))
+    BTN_GIVE_UP = Template(get_image_path("night/attack/btn_give_up.png"), record_pos=(-0.429, 0.109), resolution=(2560, 1440))
+    BTN_END = Template(get_image_path("night/attack/btn_end.png"), record_pos=(-0.43, 0.109), resolution=(2560, 1440))
     
+    def __init__(self):
+        pass
 
 

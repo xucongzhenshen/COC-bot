@@ -1,0 +1,29 @@
+{
+    "device": "emulator-5556",
+    "cap_method": "MINICAP",
+    "touch_method": "MINITOUCH",
+    "ori_method": "ADBORI",
+    "loglevel": 1,
+    "log_path": "logs/global",
+    "run_times": 50,
+    "version": "global",
+    "home_faction": "dragon",
+    "night_faction": "witch_1",
+    "home_strategy_path": "strategies/dragon1.json",
+    "night_strategy_path": "strategies/witch1.json",
+    "home_retrain": false,
+    "night_retrain": false,
+    "home_attack": true,
+    "night_attack": false,
+    "night_attack_once": true,
+    "home_attempts": 5,
+    "night_attempts": 5,
+    "exception_retry_times": 3,
+    "exception_recovery_wait_seconds": 5,
+    "exception_wait_for_start_timeout": 50,
+    "home_filter": {
+        "gold": 200000,
+        "water": 200000,
+        "oil": 2000
+    }
+}

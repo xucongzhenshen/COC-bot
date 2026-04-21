@@ -98,16 +98,22 @@ def parse_args():
         help="是否重新训练模型，默认为 False，设置为 True 将删除现有配兵并重新训练",
     )
     parser.add_argument(
-        "--home_battle",
+        "--home_attack",
         action=argparse.BooleanOptionalAction,
         default=None,
-        help="是否执行主世界战斗逻辑",
+        help="是否执行主世界进攻逻辑",
     )
     parser.add_argument(
-        "--night_battle",
+        "--night_attack",
         default=None,
         action=argparse.BooleanOptionalAction,
-        help="是否执行夜世界战斗逻辑，默认为 True，设置为 False 将跳过夜世界战斗",
+        help="是否执行夜世界进攻逻辑，默认为 True，设置为 False 将跳过夜世界进攻",
+    )
+    parser.add_argument(
+        "--night_attack_once",
+        default=None,
+        action=argparse.BooleanOptionalAction,
+        help="夜世界是否只执行一次双阶段进攻，默认为 True",
     )
     parser.add_argument(
         "--home_switch",
@@ -125,7 +131,7 @@ def parse_args():
         "--home_filter",
         type=str,
         default=None,
-        help="主世界战斗资源过滤配置，格式为 JSON 字符串，例如 '{\"gold\": 500000, \"water\": 500000, \"oil\": 1500}'",
+        help="主世界进攻资源过滤配置，格式为 JSON 字符串，例如 '{\"gold\": 500000, \"water\": 500000, \"oil\": 1500}'",
     )
     parser.add_argument(
         "--home_faction",
@@ -133,12 +139,6 @@ def parse_args():
         choices=["dragon", "electro_dragon"],
         default=None,
         help="主世界练兵流派，默认龙 (dragon)",
-    )
-    parser.add_argument(
-        "--home_fight_config_path",
-        type=str,
-        default=None,
-        help="主世界战斗参数 JSON 路径，包含 dragon_number/lightning_number/lightning_level",
     )
     parser.add_argument(
         "--lightning_data_path",
@@ -153,22 +153,28 @@ def parse_args():
         help="防空火箭数据 CSV 路径",
     )
     parser.add_argument(
-        "--home_army_setting_path",
+        "--home_strategy_path",
         type=str,
         default=None,
-        help="主世界配兵配置路径，支持目录或 JSON 文件，默认 configs/army_setting/home",
+        help="主世界策略文件路径，默认 strategies/dragon1.json",
     )
     parser.add_argument(
-        "--night_army_setting_path",
+        "--night_strategy_path",
         type=str,
         default=None,
-        help="夜世界配兵配置路径，支持目录或 JSON 文件，默认 configs/army_setting/night",
+        help="夜世界策略文件路径，默认 strategies/witch1.json",
     )
     parser.add_argument(
         "--exception_retry_times",
         type=int,
         default=None,
         help="异常恢复最大重试次数，默认 3",
+    )
+    parser.add_argument(
+        "--device_retry_times",
+        type=int,
+        default=None,
+        help="设备启动最大重试次数，默认 3",
     )
     parser.add_argument(
         "--exception_recovery_wait_seconds",
@@ -203,8 +209,9 @@ class ConfigManager:
             "version": "global",
             "home_retrain": False,
             "night_retrain": False,
-            "home_battle": True,
-            "night_battle": True,
+            "home_attack": True,
+            "night_attack": True,
+            "night_attack_once": True,
             "home_attempts": 5,
             "night_attempts": 10,
             "home_faction": "dragon",
@@ -216,18 +223,21 @@ class ConfigManager:
                 "water": 400000,
                 "oil": 1500,
             },
-            "home_fight_config_path": os.path.join("configs", "home_fight.json"),
+            "home_attack_config_path": os.path.join("configs", "home_attack.json"),
             "lightning_data_path": os.path.join("data", "game_data", "home", "lightning_spell.csv"),
             "anti_aircraft_data_path": os.path.join("data", "game_data", "home", "anti_aircraft_rocket.csv"),
             "home_army_setting_path": os.path.join("configs", "army_setting", "home"),
+            "home_strategy_path": os.path.join("strategies", "dragon1.json"),
             "night_army_setting_path": os.path.join("configs", "army_setting", "night"),
+            "night_strategy_path": os.path.join("strategies", "witch1.json"),
             "exception_retry_times": 3,
+            "device_retry_times": 3,
             "exception_recovery_wait_seconds": 5,
             "exception_wait_for_start_timeout": 50,
             "sample_path": os.path.join("data", "sample_imgs", "night"),
             "device_shortcut_dir": "devices",
         }
-        self._home_fight_defaults = {
+        self._home_attack_defaults = {
             "dragon_number": 10,
             "lightning_number": 9,
             "lightning_level": 10,
@@ -235,8 +245,9 @@ class ConfigManager:
 
         self.home_retrain = False
         self.night_retrain = False
-        self.home_battle = True
-        self.night_battle = True
+        self.home_attack = True
+        self.night_attack = True
+        self.night_attack_once = True
         self.home_attempts = 5
         self.night_attempts = 10
         self.home_faction = "dragon"
@@ -244,8 +255,9 @@ class ConfigManager:
         self.home_switch = True
         self.night_switch = True
         self.home_filter = {"gold": 400000, "water": 400000, "oil": 1500}
-        self.home_army_setting_path = "configs/army_setting/home"
-        self.night_army_setting_path = "configs/army_setting/night"
+        self.home_strategy_path = "configs/strategies/dragon1.json"
+        self.night_strategy_path = "configs/strategies/witch1.json"
+        self.device_retry_times = 3
         self.device_shortcut_dir = "devices"
 
         self.home_bot: Optional[BotConfig] = None
@@ -304,27 +316,28 @@ class ConfigManager:
         data["night_attempts"] = int(data["night_attempts"])
         data["loglevel"] = int(data["loglevel"])
         data["exception_retry_times"] = int(data["exception_retry_times"])
+        data["device_retry_times"] = int(data["device_retry_times"])
         data["exception_recovery_wait_seconds"] = int(data["exception_recovery_wait_seconds"])
         data["exception_wait_for_start_timeout"] = int(data["exception_wait_for_start_timeout"])
 
         data["log_path"] = self._abs_path(data["log_path"])
         data["lightning_data_path"] = self._abs_path(data["lightning_data_path"])
         data["anti_aircraft_data_path"] = self._abs_path(data["anti_aircraft_data_path"])
-        data["home_fight_config_path"] = self._abs_path(data["home_fight_config_path"])
-        data["home_army_setting_path"] = self._abs_path(data["home_army_setting_path"])
-        data["night_army_setting_path"] = self._abs_path(data["night_army_setting_path"])
+        data["home_attack_config_path"] = self._abs_path(data["home_attack_config_path"])
+        data["home_strategy_path"] = self._abs_path(data["home_strategy_path"])
+        data["night_strategy_path"] = self._abs_path(data["night_strategy_path"])
         data["device_shortcut_dir"] = self._abs_path(data["device_shortcut_dir"])
         data["home_filter"] = self._parse_home_filter(data["home_filter"])
 
-        home_fight = dict(self._home_fight_defaults)
-        home_fight_path = data["home_fight_config_path"]
-        if home_fight_path and os.path.exists(home_fight_path):
-            loaded_home_fight = self._load_json_file(home_fight_path)
-            home_fight = self._merge_dict(home_fight, loaded_home_fight)
-        data["home_fight"] = {
-            "dragon_number": int(home_fight["dragon_number"]),
-            "lightning_number": int(home_fight["lightning_number"]),
-            "lightning_level": int(home_fight["lightning_level"]),
+        home_attack = dict(self._home_attack_defaults)
+        home_attack_path = data["home_attack_config_path"]
+        if home_attack_path and os.path.exists(home_attack_path):
+            loaded_home_attack = self._load_json_file(home_attack_path)
+            home_attack = self._merge_dict(home_attack, loaded_home_attack)
+        data["home_attack_params"] = {
+            "dragon_number": int(home_attack["dragon_number"]),
+            "lightning_number": int(home_attack["lightning_number"]),
+            "lightning_level": int(home_attack["lightning_level"]),
         }
 
         for key, value in data.items():
@@ -332,20 +345,20 @@ class ConfigManager:
 
         self.home_bot = BotConfig(
             retrain=self.home_retrain,
-            battle=self.home_battle,
+            attack=self.home_attack,
             attempts=self.home_attempts,
             faction=self.home_faction,
             switch=self.home_switch,
             filter_config=self.home_filter,
-            army_setting_path=self.home_army_setting_path,
+            strategy_path=self.home_strategy_path,
         )
         self.night_bot = BotConfig(
             retrain=self.night_retrain,
-            battle=self.night_battle,
+            attack=self.night_attack,
             attempts=self.night_attempts,
             faction=self.night_faction,
             switch=self.night_switch,
-            army_setting_path=self.night_army_setting_path,
+            strategy_path=self.night_strategy_path,
         )
 
         self._loaded = True
@@ -359,10 +372,11 @@ class ConfigManager:
 @dataclass
 class BotConfig:
     retrain: bool
-    battle: bool
+    attack: bool
     attempts: int
     faction: str
     switch: bool
     filter_config: Optional[Dict[str, int]] = None
     army_setting_path: Optional[str] = None
+    strategy_path: Optional[str] = None
 

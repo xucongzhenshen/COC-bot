@@ -9,7 +9,6 @@ class BaseBot(ABC):
         self.logger = services.logger
         self.trained = not config.retrain
         self.attack = config.attack
-        self.attempts = config.attempts
         self.switch = config.switch
 
     @abstractmethod

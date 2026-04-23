@@ -63,10 +63,12 @@ class Assets:
 
     # --- Army_Train（用于识别兵种/法术训练入口） ---
     DRAGON_TRAIN = Template(get_image_path("home/army_train/dragon_train.png"), record_pos=(-0.02, 0.209), resolution=(2560, 1440))
+    BALLOON_TRAIN = Template(get_image_path("home/army_train/balloon_train.png"), record_pos=(-0.12, 0.103), resolution=(2560, 1440))
     LIGHTNING_SPELL_TRAIN = Template(get_image_path("home/army_train/lightning_spell_train.png"), record_pos=(-0.426, 0.102), resolution=(2560, 1440))
 
     # --- Army_Deploy（用于战斗中识别兵种/英雄/法术可部署按钮） ---
     DRAGON_DEPLOY = Template(get_image_path("home/army_deploy/dragon_deploy.png"), record_pos=(-0.398, 0.238), resolution=(2560, 1440))
+    BALLOON_DEPLOY = Template(get_image_path("home/army_deploy/balloon_deploy.png"), record_pos=(-0.323, 0.237), resolution=(2560, 1440))
     QUEEN_DEPLOY = Template(get_image_path("home/army_deploy/queen_deploy.png"), record_pos=(-0.229, 0.214), resolution=(2560, 1440))
     THE_REVENANT_PRINCE_DEPLOY = Template(get_image_path("home/army_deploy/the_revenant_prince_deploy.png"), record_pos=(-0.154, 0.216), resolution=(2560, 1440))
     LIGHTNING_SPELL_DEPLOY = Template(get_image_path("home/army_deploy/lightning_spell_deploy.png"), record_pos=(-0.145, 0.223), resolution=(2560, 1440))
@@ -87,6 +89,9 @@ class Assets:
     ANTI_AIRCRAFT_ROCKET5 = Template(get_image_path("home/anti_aircraft_rocket/anti_aircraft_rocket5.png"), record_pos=(-0.037, 0.066), resolution=(2560, 1440))
     ANTI_AIRCRAFT_ROCKET6 = Template(get_image_path("home/anti_aircraft_rocket/anti_aircraft_rocket6.png"), record_pos=(0.125, -0.005), resolution=(2560, 1440))
     ANTI_AIRCRAFT_ROCKET7 = Template(get_image_path("home/anti_aircraft_rocket/anti_aircraft_rocket7.png"), record_pos=(-0.028, -0.071), resolution=(2560, 1440))
+    ANTI_AIRCRAFT_ROCKET8 = Template(get_image_path("home/anti_aircraft_rocket/anti_aircraft_rocket8.png"), record_pos=(0.09, 0.032), resolution=(2560, 1440))
+    ANTI_AIRCRAFT_ROCKET9 = Template(get_image_path("home/anti_aircraft_rocket/anti_aircraft_rocket9.png"), record_pos=(-0.007, 0.047), resolution=(2560, 1440))
+    ANTI_AIRCRAFT_ROCKET10 = Template(get_image_path("home/anti_aircraft_rocket/anti_aircraft_rocket10.png"), record_pos=(0.161, 0.005), resolution=(2560, 1440))
 
     # =========================
     # 夜世界（Builder Base）

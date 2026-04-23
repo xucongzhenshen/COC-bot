@@ -62,14 +62,14 @@ class ServiceFactory:
         home_strategy_interpreter = HomeStrategyInterpreter(
             op=basic_operator,
             logger=logger,
-            cfg=self.config.home_bot,
+            strategy_path=self.config.home_strategy_path,
             attack_optimizer=attack_optimizer,
             air_defense_detector=air_defense_detector,
         )
         night_strategy_interpreter = NightStrategyInterpreter(
             op=basic_operator,
             logger=logger,
-            cfg=self.config.night_bot,
+            strategy_path=self.config.night_strategy_path,
         )
         home_attack_executor = HomeAttackExecutor(
             logger=logger,
@@ -85,7 +85,7 @@ class ServiceFactory:
             op=basic_operator,
             troop_trainer=night_troop_trainer,
             strategy_interpreter=night_strategy_interpreter,
-            attack_twice=not self.config.night_attack_once,
+            enable_second_stage=self.config.enable_second_stage,
         )
         calibrated_movement_controller = CalibratedMovementController(logger=logger)
         game_initializer = GameInitializer(self.config, logger, device_manager)

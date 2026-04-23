@@ -1,0 +1,36 @@
+{
+    "name": "Dragon Strategy Tencent",
+    "sequence": [
+        {
+            "type": "probe",
+            "troop": "balloon"
+        },
+        {
+            "type": "zap",
+            "count": 11,
+            "level": 7
+        },
+        {
+            "type": "deploy",
+            "troop": "dragon",
+            "count": 13
+        },
+        {
+            "type": "deploy",
+            "troop": "balloon",
+            "count": 3
+        },
+        {
+            "type": "hero",
+            "troop": "queen"
+        },
+        {
+            "type": "hero",
+            "troop": "the_revenant_prince"
+        },
+        {
+            "type": "skill",
+            "troop": "queen"
+        }
+    ]
+}

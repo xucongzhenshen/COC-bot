@@ -45,6 +45,9 @@ class AirDefenseDetector:
             5: Assets.ANTI_AIRCRAFT_ROCKET5,
             6: Assets.ANTI_AIRCRAFT_ROCKET6,
             7: Assets.ANTI_AIRCRAFT_ROCKET7,
+            8: Assets.ANTI_AIRCRAFT_ROCKET8,
+            9: Assets.ANTI_AIRCRAFT_ROCKET9,
+            10: Assets.ANTI_AIRCRAFT_ROCKET10,
         }
         anti_aircraft_stats = self._load_anti_aircraft_stats()
 

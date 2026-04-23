@@ -1,9 +1,9 @@
 {
-    "name": "Dragon Strategy 1",
+    "name": "Dragon Strategy Global",
     "sequence": [
-        { "type": "probe", "troop": "dragon" },
+        { "type": "probe", "troop": "balloon" },
         { "type": "zap", "count": 9, "level": 6 },
-        { "type": "deploy", "troop": "dragon", "count": 9 },
+        { "type": "deploy", "troop": "dragon", "count": 10 },
         { "type": "hero", "troop": "queen" },
         { "type": "hero", "troop": "the_revenant_prince" },
         { "type": "skill", "troop": "queen" }

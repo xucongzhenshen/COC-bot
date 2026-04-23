@@ -28,8 +28,7 @@ class MainLoop:
         for bot in self.bots:
             if bot.can_handle(world):
                 return bot
-        self.logger.error(f"没有找到适合处理世界 {world} 的Bot")
-        raise Exception(f"没有找到适合处理世界 {world} 的Bot")
+        self.logger.raise_with_screenshot(f"没有找到适合处理世界 {world} 的Bot")
 
     def run_once(self, index):
         self.logger.info(f"第 {index + 1} 轮主循环开始", level=0)

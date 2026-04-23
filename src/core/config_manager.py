@@ -110,10 +110,10 @@ def parse_args():
         help="是否执行夜世界进攻逻辑，默认为 True，设置为 False 将跳过夜世界进攻",
     )
     parser.add_argument(
-        "--night_attack_once",
+        "--enable_second_stage",
         default=None,
         action=argparse.BooleanOptionalAction,
-        help="夜世界是否只执行一次双阶段进攻，默认为 True",
+        help="夜世界是否启用第二阶段进攻，默认为 False",
     )
     parser.add_argument(
         "--home_switch",
@@ -211,7 +211,7 @@ class ConfigManager:
             "night_retrain": False,
             "home_attack": True,
             "night_attack": True,
-            "night_attack_once": True,
+            "enable_second_stage": False,
             "home_attempts": 5,
             "night_attempts": 10,
             "home_faction": "dragon",
@@ -227,9 +227,9 @@ class ConfigManager:
             "lightning_data_path": os.path.join("data", "game_data", "home", "lightning_spell.csv"),
             "anti_aircraft_data_path": os.path.join("data", "game_data", "home", "anti_aircraft_rocket.csv"),
             "home_army_setting_path": os.path.join("configs", "army_setting", "home"),
-            "home_strategy_path": os.path.join("strategies", "dragon1.json"),
+            "home_strategy_path": os.path.join("configs", "strategies", "dragon1.json"),
             "night_army_setting_path": os.path.join("configs", "army_setting", "night"),
-            "night_strategy_path": os.path.join("strategies", "witch1.json"),
+            "night_strategy_path": os.path.join("configs", "strategies", "witch2.json"),
             "exception_retry_times": 3,
             "device_retry_times": 3,
             "exception_recovery_wait_seconds": 5,
@@ -247,7 +247,7 @@ class ConfigManager:
         self.night_retrain = False
         self.home_attack = True
         self.night_attack = True
-        self.night_attack_once = True
+        self.enable_second_stage = False
         self.home_attempts = 5
         self.night_attempts = 10
         self.home_faction = "dragon"
@@ -256,7 +256,7 @@ class ConfigManager:
         self.night_switch = True
         self.home_filter = {"gold": 400000, "water": 400000, "oil": 1500}
         self.home_strategy_path = "configs/strategies/dragon1.json"
-        self.night_strategy_path = "configs/strategies/witch1.json"
+        self.night_strategy_path = "configs/strategies/witch2.json"
         self.device_retry_times = 3
         self.device_shortcut_dir = "devices"
 
@@ -350,7 +350,6 @@ class ConfigManager:
             faction=self.home_faction,
             switch=self.home_switch,
             filter_config=self.home_filter,
-            strategy_path=self.home_strategy_path,
         )
         self.night_bot = BotConfig(
             retrain=self.night_retrain,
@@ -358,7 +357,6 @@ class ConfigManager:
             attempts=self.night_attempts,
             faction=self.night_faction,
             switch=self.night_switch,
-            strategy_path=self.night_strategy_path,
         )
 
         self._loaded = True
@@ -378,5 +376,4 @@ class BotConfig:
     switch: bool
     filter_config: Optional[Dict[str, int]] = None
     army_setting_path: Optional[str] = None
-    strategy_path: Optional[str] = None
 

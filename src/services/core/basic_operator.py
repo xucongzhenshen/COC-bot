@@ -48,8 +48,8 @@ class BasicOperator:
         touch([target_x, target_y])
         sleep(random.uniform(min_sleep_time, max_sleep_time))
 
-    def get_text(self, roi=None):
-        roi_to_use = roi or ROI_COUNTDOWN
+    def get_text(self, roi=ROI_COUNTDOWN):
+        roi_to_use = roi if isinstance(roi, (list, tuple)) else ROI_COUNTDOWN
         screen = G.DEVICE.snapshot() if G.DEVICE else None
         if screen is None:
             return ""

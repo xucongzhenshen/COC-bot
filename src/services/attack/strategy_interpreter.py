@@ -7,13 +7,12 @@ from abc import ABC, abstractmethod
 from src.services.attack.utils import ProbeAction, DeployAction, ZapAction, HeroAction, SkillAction
 
 class StrategyInterpreter(ABC):
-    def __init__(self, op, logger, cfg, attack_optimizer=None, air_defense_detector=None):
+    def __init__(self, op, logger, strategy_path, attack_optimizer=None, air_defense_detector=None):
         self.op = op
         self.logger = logger
         self.attack_optimizer = attack_optimizer
         self.air_defense_detector = air_defense_detector
 
-        strategy_path = getattr(cfg, "strategy_path", None)
         if not strategy_path:
             self.logger.raise_with_screenshot("未配置 strategy_path")
 
@@ -66,6 +65,7 @@ class StrategyInterpreter(ABC):
         # 统一映射表，解决代码中大量的 if/else
         mapping = {
             "dragon": Assets.DRAGON_DEPLOY,
+            "balloon": Assets.BALLOON_DEPLOY,
             "queen": Assets.QUEEN_DEPLOY,
             "lightning": Assets.LIGHTNING_SPELL_DEPLOY,
             "giant": Assets.GIANT_DEPLOY,
@@ -73,6 +73,7 @@ class StrategyInterpreter(ABC):
             "archer": Assets.ARCHER_DEPLOY,
             "the_revenant_prince": Assets.THE_REVENANT_PRINCE_DEPLOY,
             "mecha": Assets.MECHA_DEPLOY,
+            "fighter_jet": Assets.FIGHTER_JET_DEPLOY,
         }
         return mapping.get(name)
 
@@ -86,8 +87,14 @@ class StrategyInterpreter(ABC):
         pass
     
 class HomeStrategyInterpreter(StrategyInterpreter):
-    def __init__(self, op, logger, cfg, attack_optimizer=None, air_defense_detector=None):
-        super().__init__(op, logger, cfg, attack_optimizer=attack_optimizer, air_defense_detector=air_defense_detector)
+    def __init__(self, op, logger, strategy_path, attack_optimizer=None, air_defense_detector=None):
+        super().__init__(
+            op,
+            logger,
+            strategy_path,
+            attack_optimizer=attack_optimizer,
+            air_defense_detector=air_defense_detector,
+        )
     
     def infer_training_config(self):
         """从动作序列中推断需要训练的兵力"""
@@ -114,8 +121,14 @@ class HomeStrategyInterpreter(StrategyInterpreter):
             action.execute(self)
     
 class NightStrategyInterpreter(StrategyInterpreter):
-    def __init__(self, op, logger, cfg, attack_optimizer=None, air_defense_detector=None):
-        super().__init__(op, logger, cfg, attack_optimizer=attack_optimizer, air_defense_detector=air_defense_detector)
+    def __init__(self, op, logger, strategy_path, attack_optimizer=None, air_defense_detector=None):
+        super().__init__(
+            op,
+            logger,
+            strategy_path,
+            attack_optimizer=attack_optimizer,
+            air_defense_detector=air_defense_detector,
+        )
         self.night_heros = ["mecha", "fight_jet"] # 夜世界英雄加入单独训练列表
 
     def _merge_two_sequences(self):

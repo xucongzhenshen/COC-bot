@@ -1,5 +1,5 @@
 {
-    "name": "witch strategy 2",
+    "name": "witch strategy Global",
     "first_sequence": [
         {
             "type": "probe",
@@ -19,11 +19,6 @@
         {
             "type": "probe",
             "troop": "giant"
-        },
-        {
-            "type": "deploy",
-            "troop": "witch",
-            "count": 1
         }
     ]
 

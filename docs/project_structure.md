@@ -46,7 +46,7 @@ coc_bot/
 │   │   ├── attack/
 │   │   │   ├── strategy_interpreter.py             # 策略解释器，根据策略config执行进攻逻辑
 │   │   │   ├── attack_executor.py                  # 完整进攻流程执行器。搜索，进攻，回营
-│   │   │   ├── army_manager.py                     # 根据策略得到训练参数，训练部队
+│   │   │   ├── troop_trainer.py                     # 根据策略得到训练参数，训练部队
 │   │   │   └── utils/
 │   │   │       ├── air_defense_detector.py         # AirDefenseDetector（防空火箭识别）
 │   │   │       ├── attack_optimizer.py             # AttackOptimizer（01背包求解）
@@ -63,6 +63,61 @@ coc_bot/
 ├── main.py                         # 程序唯一入口
 └── requirements.txt
 ```
+```
+coc_bot/
+├── configs/                # 存放各种 JSON 配置文件
+│   ├── app_config/
+│   └── strategy/
+├── data/ 
+│   ├── assets/                             # 存放模板图片、OCR 模型等静态资源
+│   ├── game_data/                          # 存放具体的游戏数据(.csv)
+│   └── sample_imgs/                        # 存放从游戏采样获得的草地图样
+├── logs/                                   # 日志输出目录
+├── src/
+│   ├── core/                               # 核心基础设施层，用于指导整个项目的组建
+│   │   ├── config_manager.py
+│   │   ├── service_factory.py
+│   │   └── app_builder.py
+│   ├── services/                           # 基础服务层（原子功能）
+│   │   ├── core/
+│   │   │   ├── basic_operator.py
+│   │   │   └── logger.py
+│   │   ├── positioning/                            # 定位
+│   │   │   ├── world_detector.py                   # WorldDetector（辨别当前所在世界）
+│   │   │   └── meadow_detector.py                  # MeadowDetector（草地定位）
+│   │   ├── movement/                               # 移动
+│   │   │   └── calibrated_movement_controller.py   # CalibratedMovementController
+│   │   ├── initializer/                            
+│   │   │   ├── device_manager.py                   # DeviceManager设备的启动，连接逻辑
+│   │   │   └── game_initializer.py                 # GameInitializer游戏启动，重启等
+│   │   ├── attack/
+│   │   │   ├── air_defense_detector.py         # AirDefenseDetector（防空火箭识别）
+│   │   │   ├── attack_optimizer.py             # AttackOptimizer（01背包求解）
+│   │   │   └── actions.py
+│   ├── logic/                                      # 业务逻辑层
+|   |   ├── base_state.py                           # 状态模版
+|   |   ├── collect_resouorce.py
+|   |   ├── correct_pos.py                          
+|   |   ├── train.py
+|   |   ├── attack.py
+|   |   ├── switch.py
+|   |   └── strategy/
+│   │   │   ├── base.py
+│   │   │   ├── home.py
+│   │   │   └── night.py
+│   ├── app/ 
+│   │   ├── base_bot.py                             # Bot 父类接口, 状态机，有logic里定义的5种状态。
+│   │   ├── home_bot.py
+│   │   └── night_bot.py
+│   ├── orchestration/
+│   │   └── scheduler.py                    # 调度中心，调度services与Bot完成相关逻辑（原main_loop）
+│   └── utils/
+│   │   └── assets.py
+├── main.py                         # 程序唯一入口
+└── requirements.txt
+```
+
+
 
 ## 3. 分层架构原理
 ### 3.1. 核心层 (`src/core/`) —— 系统组装中枢

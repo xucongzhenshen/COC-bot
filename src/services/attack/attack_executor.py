@@ -43,7 +43,7 @@ class AttackExecutor(ABC):
         attack_buttons = [self.op.exists(icon) for icon in self.attack_icons if self.op.exists(icon)]
         if not attack_buttons:
             self.logger.info("当前不可进攻", level=1)
-            return False
+            self.logger.raise_with_screenshot("未找到进攻按钮")
         self.op.random_touch(attack_buttons[0])
         return True
 
@@ -54,8 +54,8 @@ class AttackExecutor(ABC):
         timeout = 150
         while timeout > 0 and "离战斗结束还有" in self.op.get_text():
             self.logger.debug("正在战斗中...")
-            self.op.sleep(5)
-            timeout -= 5
+            self.op.sleep(2)
+            timeout -= 2
 
     def _return_to_main(self):
         timeout = 30
@@ -67,8 +67,9 @@ class AttackExecutor(ABC):
             self.logger.debug("正在返回主界面...")
             self.op.sleep(2)
             timeout -= 2
-            if self.op.exists(Assets.BTN_CONFIRM):
-                self.op.random_touch(self.op.exists(Assets.BTN_CONFIRM))
+            icon_btn_confirm = self.op.exists(Assets.BTN_CONFIRM)
+            if icon_btn_confirm:
+                self.op.random_touch(icon_btn_confirm)
                 self.op.sleep(2)
                 timeout -= 2
         if self.op.exists(Assets.BTN_TRAIN):
@@ -85,6 +86,8 @@ class HomeAttackExecutor(AttackExecutor):
         self.attack_icons = [Assets.ATTACK_HOME_WITH_3_STAR, Assets.ATTACK_HOME_WITH_STAR, Assets.ATTACK_HOME]
 
     def _search_target_once(self, first_search):
+        ROI_COUNTDOWN = [30, 1170, 80, 1360]
+
         prior_targets = None
         if not first_search:
             prior_targets = self.op.get_text(ROI_NAME)
@@ -103,10 +106,12 @@ class HomeAttackExecutor(AttackExecutor):
         waited = 0
         while waited < 50:
             self.logger.debug("正在搜索对手...")
-            if "开战倒计时" in self.op.get_text():
+            message = self.op.get_text(ROI_COUNTDOWN)
+            if "开战" in message or "倒计时" in message:
                 current_target = self.op.get_text(ROI_NAME)
                 if (not first_search) and current_target == prior_targets:
-                    self.logger.warning("不是首次搜索但目标未变化，可能网络异常，继续等待")
+                    self.logger.warning("不是首次搜索但目标未变化，可能网络异常，尝试点击继续等待")
+                    self.op.random_touch(search_btn)
                     continue
                 return
             self.op.sleep(2)
@@ -146,10 +151,10 @@ class HomeAttackExecutor(AttackExecutor):
         return True
 
 class NightAttackExecutor(AttackExecutor):
-    def __init__(self, logger, op, troop_trainer, strategy_interpreter, attack_twice=True):
+    def __init__(self, logger, op, troop_trainer, strategy_interpreter, enable_second_stage=False):
         super().__init__(logger=logger, op=op, troop_trainer=troop_trainer, strategy_interpreter=strategy_interpreter)
         self.attack_icons = [Assets.NIGHT_ATTACK_WITH_STAR, Assets.NIGHT_ATTACK]
-        self.attack_twice = attack_twice
+        self.enable_second_stage = enable_second_stage
 
     def execute(self):
         super().execute()
@@ -157,17 +162,16 @@ class NightAttackExecutor(AttackExecutor):
     def _on_attack_finish(self):
         end_btn = self.op.exists(Assets.BTN_END)
         if end_btn:
-            if not self.attack_twice:
+            if self.enable_second_stage:
                 self.logger.info("进攻胜利, 进行下一阶段进攻", level=1)
                 self.strategy_interpreter.run_second_attack()
                 self._wait_attack_finish()
             else:
                 self.op.random_touch(end_btn)
-                sleep_time = random.uniform(2, 3)
-                self.op.sleep(sleep_time)
-                confirm = self.op.exists(Assets.BTN_CONFIRM)
-                if confirm:
-                    self.op.random_touch(confirm)
+                confirm_btn = self.op.exists(Assets.BTN_CONFIRM)
+                if not confirm_btn:
+                    self.logger.raise_with_screenshot("未找到结算确认按钮")
+                self.op.random_touch(confirm_btn)
 
     def _search_target(self):
         search = self.op.exists(Assets.BTN_SEARCH)

@@ -19,7 +19,8 @@ class TroopTrainer(ABC):
             "witch": Assets.WITCH_TRAIN,
             "archer": Assets.ARCHER_TRAIN,
             "mecha": Assets.MECHA_TRAIN,
-            "dragon": Assets.DRAGON_TRAIN
+            "dragon": Assets.DRAGON_TRAIN,
+            "balloon": Assets.BALLOON_TRAIN,
         }
         return mapping.get(troop)
 

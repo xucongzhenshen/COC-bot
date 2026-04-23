@@ -11,7 +11,7 @@
   "night_strategy_path": "configs/strategies/witch_g.json",
   "home_retrain": false,
   "night_retrain": false,
-  "home_attack": true,
+  "home_attack": false,
   "night_attack": true,
   "enable_second_stage": false,
   "home_attempts": 5,

@@ -79,6 +79,7 @@ class NightBot(BaseBot):
         )
 
     def collect_resources(self):
+        total_actual, _ = self.move.move_with_tracking((0, 200), max_step_px=260)  # 移动到资源区
         for target in (Assets.NIGHT_GOLD, Assets.EREMALD):
             pos = self.op.exists(target)
             if pos:
@@ -98,6 +99,8 @@ class NightBot(BaseBot):
                 self.op.random_touch(close_btn, min_sleep_time=0.1, max_sleep_time=0.3)
                 close_btn = self.op.exists(Assets.CLOSE)
             cnt += 1
+        
+        self.move.move_with_tracking((-total_actual[0], -total_actual[1]), max_step_px=260)  # 移回原位
 
     def train_logic(self):
         training_config = self.strategy_interpreter.infer_training_config()

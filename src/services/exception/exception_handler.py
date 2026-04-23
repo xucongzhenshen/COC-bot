@@ -198,7 +198,7 @@ class ExceptionHandler:
             
         if attempt == max_attempts - 1:
             self.logger.error("已达到最大异常恢复尝试次数，直接重启游戏")
-            self.game_initializer.restart_game()
+            self.game_initializer.recover()
             return True
             
         return False

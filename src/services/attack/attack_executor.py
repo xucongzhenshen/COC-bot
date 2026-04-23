@@ -51,7 +51,7 @@ class AttackExecutor(ABC):
         pass
 
     def _wait_attack_finish(self):
-        timeout = 150
+        timeout = 210
         while timeout > 0 and "离战斗结束还有" in self.op.get_text():
             self.logger.debug("正在战斗中...")
             self.op.sleep(2)

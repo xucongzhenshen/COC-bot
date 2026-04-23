@@ -113,6 +113,22 @@ coc_bot/
 │   │   └── scheduler.py                    # 调度中心，调度services与Bot完成相关逻辑（原main_loop）
 │   └── utils/
 │   │   └── assets.py
+│   ├── context/                                 # ← 上下文层（纯数据，无业务依赖）
+│   │   ├── __init__.py
+│   │   ├── enums.py                             # 状态枚举：AttackPhase, ActionStatus 等
+│   │   ├── bot_context.py                       # BotContext
+│   │   ├── attack_context.py                    # AttackContext
+│   │   └── action_context.py                    # ActionContext
+│   ├── exception/
+|   │   ├── base.py                              # CocBotException 基类
+|   │   ├── fatal_exception.py                   # FatalException（设备/游戏启动失败）
+|   │   ├── recovery/                            # 恢复策略
+|   │   │   ├── __init__.py
+│   |   │   ├── base_recovery.py                 # RecoveryStrategy 抽象
+│   │   |   ├── bot_recovery.py                  # 利用 BotContext 恢复
+│   │   |   ├── attack_recovery.py               # 利用 AttackContext + ActionContext 恢复
+|   │   │   └── world_recovery.py                # 选世界失败 → 重启
+|   │   └── handler.py                           # ExceptionHandler（调度用哪个 recovery）
 ├── main.py                         # 程序唯一入口
 └── requirements.txt
 ```

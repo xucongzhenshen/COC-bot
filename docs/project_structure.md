@@ -101,10 +101,10 @@ coc_bot/
 |   |   ├── train.py
 |   |   ├── attack.py
 |   |   ├── switch.py
-|   |   └── strategy/
-│   │   │   ├── base.py
-│   │   │   ├── home.py
-│   │   │   └── night.py
+|   |   └── strategy/                               # 原strategy_interpreter.py拆分
+│   │   │   ├── base_interpreter.py
+│   │   │   ├── home_interpreter.py
+│   │   │   └── night_interpreter.py
 │   ├── app/ 
 │   │   ├── base_bot.py                             # Bot 父类接口, 状态机，有logic里定义的5种状态。
 │   │   ├── home_bot.py
